@@ -1,0 +1,117 @@
+.login-page-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f0f2f5; /* Светло-серый фон */
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+/* Обертка для самой формы, задает ей размеры и тени */
+.login-form-wrapper {
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 25%;
+    text-align: center;
+}
+
+/* Стили для заголовка */
+.login-title {
+    font-size: 28px;
+    font-weight: 600;
+    color: #1c1e21;
+    margin-bottom: 8px;
+}
+
+/* Стили для подзаголовка */
+.login-subtitle {
+    font-size: 16px;
+    color: #4b4f56;
+    margin-bottom: 24px;
+}
+
+/* Форма */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px; /* Расстояние между элементами формы */
+}
+
+/* Группа "лейбл + инпут" */
+.input-group {
+    text-align: left;
+}
+
+/* Лейбл для поля ввода */
+.input-label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #4b4f56;
+}
+
+/* Поле для ввода */
+.input-field {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 16px;
+    border: 1px solid #ccd0d5;
+    border-radius: 6px;
+    box-sizing: border-box; /* Чтобы padding не влиял на ширину */
+    transition: border-color 0.2s;
+}
+
+/* Эффект при фокусе на поле ввода */
+.input-field:focus {
+    outline: none;
+    border-color: #3399FD; /* Синий цвет при фокусе */
+    box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+}
+
+/* Кнопка входа */
+.login-button {
+    width: 100%;
+    padding: 12px;
+    background-color: #3399FD; /* Фирменный синий */
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 8px;
+}
+
+/* Эффект при наведении на кнопку */
+.login-button:hover {
+    background-color: #166fe5;
+}
+
+/* Футер формы со ссылками */
+.login-footer {
+    margin-top: 24px;
+    font-size: 14px;
+}
+
+.footer-link {
+    color: #1877f2;
+    text-decoration: none;
+}
+
+.footer-link:hover {
+    text-decoration: underline;
+}
+
+.footer-separator {
+    color: #606770;
+    margin: 0 8px;
+}
+
+p{
+    color: #4b4f56;
+}

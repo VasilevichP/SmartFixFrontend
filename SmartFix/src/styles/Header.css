@@ -1,0 +1,69 @@
+.header-container {
+    background-color: #3399FD;
+    border-bottom: 1px solid #e0e0e0; /* Тонкая серая линия снизу */
+    height: 64px;
+    display: flex;
+    align-items: center;
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+/* Контент внутри хэдера, чтобы ограничить ширину и отцентровать */
+.header-content {
+    width: 90%;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between; /* Разносит левую и правую часть по краям */
+    align-items: center;
+}
+
+/* Левая часть хэдера (лого + навигация) */
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 24px; /* Расстояние между лого и ссылками */
+}
+
+/* Стили для логотипа */
+.header-logo {
+    display: flex;
+    align-items: center;
+}
+
+.header-logo img {
+    height: 50px; /* Высота вашего логотипа */
+    width: auto;
+}
+
+/* Контейнер для навигационных ссылок */
+.header-nav {
+    display: flex;
+    gap: 20px; /* Расстояние между ссылками */
+}
+
+/* Стили для навигационных ссылок */
+.nav-link {
+    font-size: 16px;
+    font-weight: 500;
+    color: white;
+    text-decoration: none;
+    padding: 8px 0;
+    position: relative;
+    transition: color 0.2s;
+}
+
+/* Эффект при наведении на ссылку */
+.nav-link:hover {
+    text-decoration:underline;
+    color: white;
+}
+
+
+/* Правая часть хэдера (кнопка Выйти) */
+.header-right {
+    display: flex;
+    align-items: center;
+}
