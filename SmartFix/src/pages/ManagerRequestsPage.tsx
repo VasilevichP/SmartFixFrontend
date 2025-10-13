@@ -1,6 +1,7 @@
 import React from 'react';
 import ManagerHeader from "../components/ManagerHeader.tsx";
 import '../styles/ManagerPages.css';
+import {useNavigate} from "react-router-dom";
 
 // Определяем структуру данных для одной заявки (это хорошая практика в TypeScript)
 interface ServiceRequest {
@@ -86,41 +87,48 @@ const getStatusClassName = (status: ServiceRequest['status']) => {
 
 
 export const ManagerRequestsPage: React.FC = () => {
+
+    const navigate = useNavigate();
     return (
         <div>
             <ManagerHeader/>
             <div className="page-container">
                 <h1 className="title">Управление заявками</h1>
 
-                <div className="filter-toolbar">
-                    <div className="filter-group">
-                        <label htmlFor="status-filter">Фильтр по статусу:</label>
-                        <select id="status-filter" className="filter-select">
-                            <option value="all">Все</option>
-                            <option value="new">Новые</option>
-                            <option value="in_progress">В работе</option>
-                            <option value="ready">Готовы</option>
-                            <option value="closed">Закрыты</option>
-                            <option value="cancelled">Отменены</option>
-                        </select>
-                    </div>
-                    <div className="filter-group">
-                        <label htmlFor="date-sort">Сортировка по дате:</label>
-                        <select id="date-sort" className="filter-select">
-                            <option value="0">От новых к старым</option>
-                            <option value="1">От старых к новым</option>
-                        </select>
-                    </div>
-                    <div className="search-group">
-                        <div className="search-input-wrapper">
-                            <input type="text" className="search-input" placeholder="Поиск ..."/>
-                            <svg className="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                 fill="currentColor">
-                                <path fillRule="evenodd"
-                                      d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                                      clipRule="evenodd"/>
-                            </svg>
+                <div className="filter-panel">
+                    <div className="filter-header">
+                        <div className="filter-title-wrapper">
+                            <h2 className="filter-title">Фильтр</h2>
                         </div>
+                        <div className="filter-actions">
+                            <a href="#" className="filter-action-link">Сбросить</a>
+                            <button className='action-button-secondary'>Применить фильтры</button>
+                        </div>
+                    </div>
+
+                    <div className="filter-controls">
+                        <div className="filter-group">
+                            <label htmlFor="status-filter" className="filter-label">Статус</label>
+                            <select id="status-filter" className="filter-select">
+                                <option value="all">Все</option>
+                                <option value="new">Новые</option>
+                                <option value="in_progress">В работе</option>
+                                <option value="ready">Готовы</option>
+                                <option value="closed">Закрыты</option>
+                                <option value="cancelled">Отменены</option>
+                            </select>
+                        </div>
+
+                        <div className="filter-group">
+                            <label htmlFor="date-sort" className="filter-label">Дата</label>
+                            <select id="date-sort" className="filter-select">
+                                <option value="0">От новых к старым</option>
+                                <option value="1">От старых к новым</option>
+                            </select>
+                        </div>
+
+                        <input type="text" className="search-input"
+                               placeholder="Введите название услуги, клиента или исполнителя"/>
                     </div>
                 </div>
 
@@ -134,12 +142,11 @@ export const ManagerRequestsPage: React.FC = () => {
                             <th>Дата создания</th>
                             <th>Исполнитель</th>
                             <th>Статус</th>
-                            <th>Действия</th>
                         </tr>
                         </thead>
                         <tbody>
                         {mockRequests.map((request) => (
-                            <tr key={request.id}>
+                            <tr key={request.id} onClick={() => navigate('/manager/requests/details')}>
                                 <td>{request.id}</td>
                                 <td>{request.clientName}</td>
                                 <td>{request.service}</td>
@@ -150,12 +157,7 @@ export const ManagerRequestsPage: React.FC = () => {
                     {request.status}
                   </span>
                                 </td>
-                                <td>
-                                    <div className="button-container">
-                                        <button className="action-button">Детали</button>
-                                        <button className="action-button-cancel action-button ">Отменить</button>
-                                    </div>
-                                </td>
+
                             </tr>
                         ))}
                         </tbody>

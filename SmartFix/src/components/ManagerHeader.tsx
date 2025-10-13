@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 import '../styles/Header.css'; // Используем тот же общий файл стилей
 import logo from '../assets/logo.png'
 
@@ -17,6 +17,9 @@ const ManagerHeader = () => {
                         </a>
                         <a href="/manager/services" className="nav-link">
                             Услуги
+                        </a>
+                        <a href="/manager/dictionaries" className="nav-link">
+                            Справочники
                         </a>
                         <a href="/manager/statistics" className="nav-link">
                             Статистика

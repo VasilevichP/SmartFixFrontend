@@ -1,0 +1,213 @@
+/* ServiceDetailsPage.css */
+
+/* Общий контейнер страницы */
+.details-page-container {
+    width: 90%;
+    margin: auto;
+    margin-top: 3em;
+    padding: 24px;
+    background-color: #f9fafb;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.details-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0; /* Убираем стандартный отступ */
+}
+
+.card-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+    margin-top: 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 12px;
+}
+
+.header-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.action-button {
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.save-button {
+    background-color: #3399FD; /* Синий */
+    color: #ffffff;
+}
+.save-button:hover {
+    background-color: #2563eb;
+}
+
+.delete-button {
+    background-color: #fee2e2;
+    color: #ef4444;
+}
+.delete-button:hover {
+    background-color: #fecaca;
+}
+
+/* --- НОВОЕ: Контейнер и сетка формы --- */
+.card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.06);
+    padding: 24px;
+}
+
+.form-container {
+    margin-bottom: 24px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* Левая колонка шире правой */
+    gap: 32px;
+}
+
+.form-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.fields-row {
+    display: flex;
+    gap: 16px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.form-label {
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.form-input, .form-select, .form-textarea, .form-file-input {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+.form-checkbox {
+    width: 16px;
+    height: 16px;
+}
+.checkbox-label {
+    font-size: 14px;
+}
+
+/* --- НОВОЕ: Секция с изображением в форме --- */
+.form-image-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.service-image {
+    width: 100%;
+    aspect-ratio: 16 / 10; /* Соотношение сторон 16:10 */
+    object-fit: cover; /* Чтобы изображение не искажалось */
+    border-radius: 6px;
+    margin-bottom: 16px;
+    border: 1px solid #e5e7eb;
+}
+
+/* --- Стили для отзывов (почти без изменений) --- */
+.reviews-container {
+    margin-top: 24px;
+    color: #4b5563;
+}
+.card-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 12px;
+}
+.reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.review-item {
+    border-bottom: 1px solid #f3f4f6;
+    padding-bottom: 16px;
+}
+.review-item:last-child {
+    border-bottom: none;
+}
+.review-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+.review-author {
+    font-weight: 600;
+}
+.review-rating {
+    color: #f59e0b;
+}
+.review-comment {
+    font-size: 14px;
+    color: #4b5563;
+    margin: 0;
+}
+
+/* Адаптивность */
+@media (max-width: 992px) {
+    .form-grid {
+        grid-template-columns: 1fr; /* Одна колонка */
+    }
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .fields-row {
+        flex-direction: column;
+    }
+}

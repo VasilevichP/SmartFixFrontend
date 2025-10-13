@@ -1,0 +1,220 @@
+.request-details-page {
+    width: 90%;
+    margin: auto;
+    margin-top: 3em;
+    padding: 24px;
+    background-color: #f9fafb;
+}
+
+/* --- Заголовок страницы с действиями --- */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+.details-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+}
+.header-actions {
+    display: flex;
+    gap: 12px;
+}
+.action-button {
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.save-button {
+    background-color: #3399FD;
+    color: #ffffff;
+}
+.save-button:hover {
+    background-color: #2563eb;
+}
+.secondary-button {
+    background-color: #ffffff;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+.secondary-button:hover {
+    background-color: #f3f4f6;
+}
+
+/* --- Основной макет --- */
+.details-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+}
+
+/* --- Общие стили для карточек и их заголовков --- */
+.card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.06);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.card-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 20px 0;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 12px;
+}
+
+/* --- Левая колонка - Основная информация --- */
+.main-content {}
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+.info-block {
+    display: flex;
+    flex-direction: column;
+}
+.info-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #6b7280;
+    margin-bottom: 4px;
+}
+.info-value {
+    font-size: 14px;
+    color: #111827;
+}
+.info-description {
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.6;
+    background-color: #f3f4f6;
+    padding: 12px;
+    border-radius: 6px;
+    margin: 0;
+}
+.full-width {
+    grid-column: 1 / -1;
+}
+
+/* Список файлов */
+.files-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+}
+.file-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+.file-item:hover {
+    background-color: #f9fafb;
+}
+.file-name {
+    font-weight: 500;
+    color: #3b82f6;
+}
+.file-size {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+/* --- Правая колонка - Сайдбар --- */
+.sidebar-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+.sidebar-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.input-group {
+    display: flex;
+    flex-direction: column;
+}
+.form-label {
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+}
+.form-select {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+/* История клиента */
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+}
+.history-id {
+    color: #374151;
+    font-weight: 500;
+}
+
+/* --- Стили для статусов (большой и маленький) --- */
+.status-badge-large {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-top: 8px;
+}
+.status-badge-small {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    font-weight: 500;
+    font-size: 12px;
+}
+/* Цвета (из прошлого примера) */
+.status-new { background-color: #dbeafe; color: #1e40af; }
+.status-in-progress { background-color: #fef3c7; color: #92400e; }
+.status-diagnostics { background-color: #e0e7ff; color: #3730a3; }
+.status-ready { background-color: #d1fae5; color: #065f46; }
+.status-closed { background-color: #e5e7eb; color: #374151; }
+.status-cancelled { background-color: #fee2e2; color: #991b1b; }
+
+/* Адаптивность */
+@media (max-width: 992px) {
+    .details-layout {
+        grid-template-columns: 1fr;
+    }
+}
