@@ -1,0 +1,196 @@
+.catalog-page-container {
+    width: 90%;
+    margin: auto;
+    margin-top: 3em;
+    padding: 24px;
+    background-color: #f9fafb;
+}
+
+/* --- Строка поиска --- */
+.search-bar-container {
+    max-width: 800px;
+    margin: 24px auto 32px auto;
+}
+.search-input-wrapper {
+    position: relative;
+}
+.search-input {
+    width: 100%;
+    padding: 12px 40px 12px 16px;
+    font-size: 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 9999px; /* Делает инпут полностью круглым */
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.search-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+.search-icon {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 22px;
+    height: 22px;
+    color: #9ca3af;
+    cursor: pointer;
+}
+
+/* --- Основной макет: фильтры + контент --- */
+.catalog-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr; /* Фиксированная боковая панель, остальное - контент */
+    gap: 32px;
+}
+
+/* --- Боковая панель с фильтрами --- */
+.filters-sidebar {
+    background-color: #ffffff;
+    color: #1c1e21;
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    align-self: start; /* Чтобы панель не растягивалась на всю высоту */
+}
+.filters-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 20px 0;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e5e7eb;
+}
+.filter-group {
+    margin-bottom: 24px;
+}
+.filter-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 12px;
+    color: #374151;
+}
+.filter-select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+}
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.radio-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+/* --- Основной контент --- */
+.services-content {}
+
+/* --- Сетка для карточек услуг --- */
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+}
+.service-card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+}
+.service-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+.card-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+}
+.card-content {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Чтобы футер всегда был внизу */
+}
+.card-category {
+    font-size: 12px;
+    font-weight: 500;
+    color: #6b7280;
+    margin-bottom: 8px;
+}
+.card-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 8px 0;
+}
+.card-description {
+    font-size: 14px;
+    color: #4b5563;
+    line-height: 1.5;
+    margin: 0;
+    flex-grow: 1; /* Занимает все доступное место */
+}
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #f3f4f6;
+}
+.card-price {
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+}
+.card-button {
+    background-color: #3b82f6;
+    color: #ffffff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+/* --- Пагинация --- */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 32px;
+}
+.pagination-button {
+    padding: 8px 14px;
+    border: 1px solid #d1d5db;
+    background-color: #ffffff;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+.pagination-button.active, .pagination-button:hover {
+    background-color: #3b82f6;
+    color: #ffffff;
+    border-color: #3b82f6;
+}
+
+/* --- Адаптивность --- */
+@media (max-width: 992px) {
+    .catalog-layout {
+        grid-template-columns: 1fr; /* Фильтры и контент в одну колонку */
+    }
+}

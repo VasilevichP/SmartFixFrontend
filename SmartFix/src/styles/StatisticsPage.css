@@ -1,0 +1,200 @@
+.statistics-page-container {
+    width: 90%;
+    margin: auto;
+    margin-top: 3em;
+    padding: 24px;
+    background-color: #f9fafb;
+    min-height: calc(100vh - 64px);
+}
+
+/* --- Заголовок и панель инструментов --- */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.page-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 24px;
+}
+.page-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.toolbar-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #6b7280;
+}
+.toolbar-select {
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+}
+.download-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #3b82f6;
+    color: #ffffff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.download-button svg {
+    width: 20px;
+    height: 20px;
+}
+.download-button:hover {
+    background-color: #2563eb;
+}
+
+.tabs-container {
+    display: flex;
+    border-bottom: 1px solid #d1d5db;
+    margin-bottom: 24px;
+}
+
+.tab-button {
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #6b7280;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    border-bottom: 2px solid transparent; /* Линия под неактивной вкладкой */
+    margin-bottom: -1px; /* Чтобы линия совпадала с общей границей */
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.tab-button:hover {
+    color: #374151;
+}
+
+.tab-button.active {
+    color: #3b82f6; /* Синий цвет для активной вкладки */
+    border-bottom-color: #3b82f6;
+}
+
+/* --- Сетка для KPI-карточек --- */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-bottom: 24px;
+}
+.kpi-card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.06);
+    padding: 24px;
+}
+.kpi-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #6b7280;
+    margin: 0 0 8px 0;
+}
+.kpi-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 8px 0;
+}
+.kpi-trend {
+    font-size: 14px;
+    font-weight: 500;
+}
+.kpi-trend.positive { color: #10b981; } /* Зеленый */
+.kpi-trend.negative { color: #ef4444; } /* Красный */
+.kpi-trend.neutral { color: #6b7280; }  /* Серый */
+
+/* --- Сетка для графиков --- */
+.charts-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+.chart-card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.06);
+    padding: 24px;
+}
+.card-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 20px 0;
+}
+.chart-placeholder {
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f3f4f6;
+    border-radius: 6px;
+}
+.placeholder-text {
+    color: #9ca3af;
+    font-weight: 500;
+}
+
+/* --- Карточка с таблицей --- */
+.table-card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.06);
+    padding: 24px;
+}
+.rating-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.rating-table th, .rating-table td {
+    text-align: left;
+    padding: 12px;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 14px;
+}
+.rating-table th {
+    font-weight: 600;
+    color: #4b5563;
+}
+.rating-table td {
+    color: #374151;
+}
+.rating-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* --- Адаптивность --- */
+@media (max-width: 1024px) {
+    .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+}
+@media (max-width: 640px) {
+    .kpi-grid {
+        grid-template-columns: 1fr;
+    }
+}

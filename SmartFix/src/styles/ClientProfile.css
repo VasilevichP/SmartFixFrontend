@@ -1,0 +1,163 @@
+.dashboard-page-container {
+    width: 90%;
+    margin: auto;
+    margin-top: 3em;
+    padding: 24px;
+    background-color: #f9fafb;
+}
+
+/* --- Заголовок страницы --- */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 24px 0;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+.welcome-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+}
+.welcome-subtitle {
+    font-size: 16px;
+    color: #6b7280;
+    margin: 4px 0 0 0;
+}
+.new-request-button {
+    background-color: #3b82f6;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+.new-request-button:hover {
+    background-color: #2563eb;
+}
+
+/* --- Контейнер для списка заявок --- */
+.card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.requests-container {
+    overflow: hidden; /* Чтобы скруглить углы вместе с табами */
+}
+
+/* --- Переключатель вкладок --- */
+.tabs-container {
+    display: flex;
+    background-color: #f3f4f6;
+    padding: 4px;
+}
+.tab-button {
+    flex-grow: 1;
+    padding: 10px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #6b7280;
+    background-color: transparent;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.tab-button.active {
+    color: #111827;
+    background-color: #ffffff;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+/* --- Список заявок --- */
+.requests-list {
+    padding: 8px;
+}
+
+.request-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid #f3f4f6;
+}
+.request-item:last-child {
+    border-bottom: none;
+}
+
+.request-id {
+    font-size: 12px;
+    font-weight: 500;
+    color: #6b7280;
+    margin-bottom: 4px;
+}
+.request-service-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+}
+.request-date {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 4px 0 0 0;
+}
+
+.request-status {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-weight: 500;
+    font-size: 12px;
+}
+/* Цвета статусов */
+.status-new { background-color: #dbeafe; color: #1e40af; }
+.status-in-progress, .status-diagnostics { background-color: #fef3c7; color: #92400e; }
+.status-waiting { background-color: #fee2e2; color: #991b1b; }
+.status-ready { background-color: #d1fae5; color: #065f46; }
+.status-closed, .status-cancelled { background-color: #e5e7eb; color: #374151; }
+
+
+.details-link {
+    font-size: 14px;
+    font-weight: 500;
+    color: #3b82f6;
+    text-decoration: none;
+}
+.details-link:hover {
+    text-decoration: underline;
+}
+
+/* Состояние "пусто" */
+.empty-state {
+    text-align: center;
+    padding: 48px;
+    color: #9ca3af;
+}
+
+/* Адаптивность */
+@media (max-width: 640px) {
+    .request-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    .request-status {
+        align-items: flex-start;
+    }
+}

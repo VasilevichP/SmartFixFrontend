@@ -1,0 +1,139 @@
+.request-details-client-page {
+    width: 90%;
+    margin: auto;
+    margin-top: 3em;
+    padding: 24px;
+}
+
+.page-header {
+    margin-bottom: 24px;
+}
+.back-link {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #3b82f6;
+    text-decoration: none;
+    margin-bottom: 16px;
+}
+.details-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+}
+.details-subtitle {
+    font-size: 16px;
+    color: #6b7280;
+    margin: 4px 0 0 0;
+}
+
+/* --- Основная карточка --- */
+.main-card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.06);
+    padding: 0; /* Убираем паддинг, чтобы секции прилегали к краям */
+    overflow: hidden;
+}
+
+/* --- НОВЫЙ БЛОК СТАТУСА --- */
+.status-highlight-section {
+    background-color: #f9fafb;
+    padding: 24px;
+    display: flex;
+    gap: 24px;
+    border-bottom: 1px solid #e5e7eb;
+}
+.status-block {
+    display: flex;
+    flex-direction: column;
+}
+.date-value {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+}
+.status-badge-large {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 14px;
+}
+/* Цвета статусов (из прошлых примеров) */
+.status-new { background-color: #dbeafe; color: #1e40af; }
+.status-in-progress, .status-diagnostics { background-color: #fef3c7; color: #92400e; }
+.status-waiting { background-color: #fee2e2; color: #991b1b; }
+.status-ready { background-color: #d1fae5; color: #065f46; }
+.status-closed, .status-cancelled { background-color: #e5e7eb; color: #374151; }
+
+/* --- Секция с деталями --- */
+.details-section {
+    padding: 24px;
+}
+.section-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 20px 0;
+}
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+.info-block {
+    display: flex;
+    flex-direction: column;
+}
+.info-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #6b7280;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+}
+.info-value {
+    font-size: 16px;
+    color: #111827;
+}
+.full-width {
+    grid-column: 1 / -1;
+}
+.info-description {
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* --- Блок действий --- */
+.actions-footer {
+    padding: 16px 24px;
+    border-top: 1px solid #e5e7eb;
+    background-color: #f9fafb;
+}
+.action-button {
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid #d1d5db;
+    background-color: #ffffff;
+    color: #374151;
+    transition: all 0.2s;
+}
+.action-button:hover {
+    background-color: #f3f4f6;
+}
+
+/* --- Адаптивность --- */
+@media (max-width: 768px) {
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+    .status-highlight-section {
+        flex-direction: column;
+    }
+}

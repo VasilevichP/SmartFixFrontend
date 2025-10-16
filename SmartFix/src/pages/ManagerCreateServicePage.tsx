@@ -2,7 +2,7 @@ import React from 'react';
 import ManagerHeader from "../components/ManagerHeader.tsx";
 import '../styles/CreateServicePage.css';
 
-export const CreateServicePage: React.FC = () => {
+export const ManagerCreateServicePage: React.FC = () => {
     return (
         <div>
             <ManagerHeader/>

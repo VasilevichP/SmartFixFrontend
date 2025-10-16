@@ -120,14 +120,6 @@
     font-size: 16px; /* Размер иконок-эмодзи */
 }
 
-.edit-button:hover {
-    background-color: #e0e7ff; /* Светло-синий */
-}
-
-.delete-button:hover {
-    background-color: #fee2e2; /* Светло-красный */
-}
-
 /* Адаптивность для мобильных устройств */
 @media (max-width: 992px) {
     .dictionaries-grid {

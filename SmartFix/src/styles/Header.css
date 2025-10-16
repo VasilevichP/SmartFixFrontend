@@ -57,7 +57,7 @@
 
 /* Эффект при наведении на ссылку */
 .nav-link:hover {
-    text-decoration:underline;
+    text-decoration: underline;
     color: white;
 }
 
@@ -66,4 +66,19 @@
 .header-right {
     display: flex;
     align-items: center;
+    gap: 20px;
+}
+
+.profile-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff; /* Цвет иконки по умолчанию */
+    transition: color 0.2s;
+    text-decoration: none;
+}
+
+.profile-icon {
+    width: 28px;
+    height: 28px;
 }
