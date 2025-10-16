@@ -116,7 +116,7 @@ export const ManagerServicesPage: React.FC = () => {
                 </div>
 
                 <div className='form-action'>
-                    <button className="action-button" onClick={() => navigate('/manager/services/create')}>Добавить услугу</button>
+                    <button className="download-button" onClick={() => navigate('/manager/services/create')}>Добавить услугу</button>
                 </div>
 
                 {/* Контейнер для таблицы */}

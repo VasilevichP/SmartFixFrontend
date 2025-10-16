@@ -16,13 +16,6 @@ interface ServiceRequestDetails {
     specialistName: string | null;
 }
 
-// Определяем структуру для события в истории
-interface RequestHistoryEvent {
-    id: number;
-    timestamp: string;
-    description: string;
-}
-
 // "Заглушка" с данными для текущей заявки
 const mockRequest: ServiceRequestDetails = {
     id: 'SF-1024',
@@ -110,7 +103,7 @@ export const ClientRequestDetailsPage: React.FC = () => {
                     {/* =================== БЛОК ДЕЙСТВИЙ ====================== */}
                     {/* ========================================================== */}
                     <div className="actions-footer">
-                        <button className="action-button">Скачать квитанцию</button>
+                        <button className="download-button">Скачать квитанцию</button>
                     </div>
                 </div>
             </div>

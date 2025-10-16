@@ -20,6 +20,7 @@ interface Review {
     comment: string;
     createdAt: string;
 }
+
 // "Заглушка" с данными для примера
 const mockService: Service = {
     id: 2,
@@ -32,8 +33,20 @@ const mockService: Service = {
 };
 
 const mockReviews: Review[] = [
-    { id: 1, clientName: 'Петрова Анна', rating: 5, comment: 'Все сделали очень быстро и качественно! Экран как новый. Спасибо!', createdAt: '26.10.2025' },
-    { id: 2, clientName: 'Алексеев Дмитрий', rating: 4, comment: 'В целом все хорошо, но пришлось немного подождать. К качеству работы претензий нет.', createdAt: '22.10.2025' },
+    {
+        id: 1,
+        clientName: 'Петрова Анна',
+        rating: 5,
+        comment: 'Все сделали очень быстро и качественно! Экран как новый. Спасибо!',
+        createdAt: '26.10.2025'
+    },
+    {
+        id: 2,
+        clientName: 'Алексеев Дмитрий',
+        rating: 4,
+        comment: 'В целом все хорошо, но пришлось немного подождать. К качеству работы претензий нет.',
+        createdAt: '22.10.2025'
+    },
 ];
 
 export const ClientServiceDetailsPage: React.FC = () => {
@@ -44,7 +57,6 @@ export const ClientServiceDetailsPage: React.FC = () => {
 
     // --- Функции для открытия и закрытия модального окна ---
     const handleOpenModal = () => setApplicationModalOpen(true);
-    const handleCloseModal = () => setApplicationModalOpen(false);
 
     const handleApplicationSubmit = () => {
         // Здесь в реальном приложении будет логика отправки данных на сервер
@@ -100,7 +112,8 @@ export const ClientServiceDetailsPage: React.FC = () => {
                             <div key={review.id} className="review-item">
                                 <strong className="review-author">{review.clientName}</strong>
                                 <div className="review-header">
-                                    <span className="review-rating">{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</span>
+                                    <span
+                                        className="review-rating">{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</span>
                                     <p>{review.createdAt}</p>
                                 </div>
                                 <p className="review-comment">{review.comment}</p>
@@ -113,31 +126,61 @@ export const ClientServiceDetailsPage: React.FC = () => {
                 {/* ==================== МОДАЛЬНОЕ ОКНО ====================== */}
                 {/* ========================================================== */}
                 {isApplicationModalOpen && (
-                    <div className="modal-overlay" onClick={handleCloseModal}>
+                    <div className="modal-overlay" onClick={() => setApplicationModalOpen(false)}>
                         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                             <div className="modal-header">
                                 <h2 className="modal-title">Новая заявка: {mockService.name}</h2>
-                                <button className="modal-close-button" onClick={handleCloseModal}>&times;</button>
+                                <button className="modal-close-button"
+                                        onClick={() => setApplicationModalOpen(false)}>&times;</button>
                             </div>
                             <div className="modal-body">
                                 <form className="application-form">
-                                    <div className="input-group">
-                                        <label htmlFor="device-model" className="form-label">Модель вашего
-                                            устройства</label>
-                                        <input type="text" id="device-model" className="form-input"
-                                               placeholder="Например, Apple iPhone 14 Pro"/>
+                                    {/* --- НОВЫЙ БЛОК: Персональные данные --- */}
+                                    <div className="form-row">
+                                        <div className="input-group">
+                                            <label htmlFor="last-name" className="form-label">* Фамилия</label>
+                                            <input type="text" id="last-name" className="form-input"
+                                                   placeholder="Иванов"/>
+                                        </div>
+                                        <div className="input-group">
+                                            <label htmlFor="first-name" className="form-label">* Имя</label>
+                                            <input type="text" id="first-name" className="form-input"
+                                                   placeholder="Иван"/>
+                                        </div>
                                     </div>
+
                                     <div className="input-group">
-                                        <label htmlFor="serial-number" className="form-label">Серийный номер
-                                            (необязательно)</label>
-                                        <input type="text" id="serial-number" className="form-input"
-                                               placeholder="Можно найти на коробке или в настройках"/>
+                                        <label htmlFor="middle-name" className="form-label">Отчество</label>
+                                        <input type="text" id="middle-name" className="form-input"
+                                               placeholder="Иванович"/>
+                                    </div>
+
+                                    <div className="input-group">
+                                        <label htmlFor="phone" className="form-label">* Контактный телефон</label>
+                                        <input type="tel" id="phone" className="form-input" placeholder="375293334455"/>
+                                    </div>
+
+                                    <hr className="form-divider"/>
+                                    {/* --- Конец нового блока --- */}
+                                    <div className="form-row">
+                                        <div className="input-group">
+                                            <label htmlFor="device-model" className="form-label">* Модель вашего
+                                                устройства</label>
+                                            <input type="text" id="device-model" className="form-input"
+                                                   placeholder="Например, Apple iPhone 14 Pro"/>
+                                        </div>
+                                        <div className="input-group">
+                                            <label htmlFor="serial-number" className="form-label">* Серийный
+                                                номер</label>
+                                            <input type="text" id="serial-number" className="form-input"
+                                                   placeholder="Можно найти на коробке или в настройках"/>
+                                        </div>
                                     </div>
                                     <div className="input-group">
                                         <label htmlFor="problem-description" className="form-label">Опишите
                                             проблему</label>
                                         <textarea id="problem-description" className="form-textarea" rows={4}
-                                                  placeholder="Например, трещина в правом верхнем углу, сенсор не работает..."></textarea>
+                                                  placeholder="Например, трещина в правом верхнем углу..."></textarea>
                                     </div>
                                     <div className="input-group">
                                         <label htmlFor="files" className="form-label">Прикрепите фото/видео
@@ -147,9 +190,12 @@ export const ClientServiceDetailsPage: React.FC = () => {
                                 </form>
                             </div>
                             <div className="modal-footer">
-                                <button className="action-button cancel-button" onClick={handleCloseModal}>Отмена
+                                <button className="action-button cancel-button"
+                                        onClick={() => setApplicationModalOpen(false)}>Отмена
                                 </button>
-                                <button className="action-button submit-button" onClick={()=> handleApplicationSubmit()}>Отправить заявку</button>
+                                <button className="action-button submit-button"
+                                        onClick={handleApplicationSubmit}>Отправить заявку
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -160,7 +206,8 @@ export const ClientServiceDetailsPage: React.FC = () => {
                         <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                             <div className="modal-header">
                                 <h2 className="modal-title">Оставить отзыв об услуге</h2>
-                                <button className="modal-close-button" onClick={() => setReviewModalOpen(false)}>&times;</button>
+                                <button className="modal-close-button"
+                                        onClick={() => setReviewModalOpen(false)}>&times;</button>
                             </div>
                             <div className="modal-body">
                                 <form className="review-form">
@@ -173,12 +220,15 @@ export const ClientServiceDetailsPage: React.FC = () => {
                                     </div>
                                     <div className="input-group">
                                         <label htmlFor="review-comment" className="form-label">Комментарий</label>
-                                        <textarea id="review-comment" className="form-textarea" rows={5} placeholder="Поделитесь вашими впечатлениями о качестве сервиса..."></textarea>
+                                        <textarea id="review-comment" className="form-textarea" rows={5}
+                                                  placeholder="Поделитесь вашими впечатлениями о качестве сервиса..."></textarea>
                                     </div>
                                 </form>
                             </div>
                             <div className="modal-footer">
-                                <button className="action-button cancel-button" onClick={() => setReviewModalOpen(false)}>Отмена</button>
+                                <button className="action-button cancel-button"
+                                        onClick={() => setReviewModalOpen(false)}>Отмена
+                                </button>
                                 <button className="action-button submit-button">Отправить отзыв</button>
                             </div>
                         </div>
@@ -190,8 +240,10 @@ export const ClientServiceDetailsPage: React.FC = () => {
                         <div className="modal-content success-modal" onClick={(e) => e.stopPropagation()}>
                             <div className="modal-body">
                                 <div className="success-icon-container">
-                                    <svg className="success-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    <svg className="success-icon" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                         viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round"
+                                              d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                     </svg>
                                 </div>
                                 <h2 className="success-title">Заявка успешно создана!</h2>
@@ -210,7 +262,9 @@ export const ClientServiceDetailsPage: React.FC = () => {
                                 >
                                     Скачать квитанцию
                                 </a>
-                                <button className="action-button cancel-button" onClick={() => setSuccessModalOpen(false)}>Закрыть</button>
+                                <button className="action-button cancel-button"
+                                        onClick={() => setSuccessModalOpen(false)}>Закрыть
+                                </button>
                             </div>
                         </div>
                     </div>

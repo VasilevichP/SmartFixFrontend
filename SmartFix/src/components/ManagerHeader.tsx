@@ -8,7 +8,7 @@ const ManagerHeader = () => {
             <div className="header-content">
                 <div className="header-left">
                     {/* Место для вашего логотипа */}
-                    <a href="/manager/dashboard" className="header-logo">
+                    <a href="/manager/requests" className="header-logo">
                         <img src={logo} alt="SmartFix Logo" />
                     </a>
                     <nav className="header-nav">

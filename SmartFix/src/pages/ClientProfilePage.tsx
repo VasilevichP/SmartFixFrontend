@@ -1,7 +1,6 @@
 import React, {useState} from 'react';
 import ClientHeader from "../components/ClientHeader.tsx";
 import '../styles/ClientProfile.css';
-import {useNavigate} from "react-router-dom";
 
 // Определяем структуру данных для заявки
 interface ServiceRequest {
@@ -10,6 +9,22 @@ interface ServiceRequest {
     createdAt: string;
     status: 'Новая' | 'В работе' | 'На диагностике' | 'Ожидание запчастей' | 'Готова' | 'Закрыта' | 'Отменена';
 }
+
+interface UserProfile {
+    firstName: string;
+    lastName: string;
+    middleName: string;
+    phone: string;
+    email: string;
+}
+
+const mockUser: UserProfile = {
+    firstName: 'Анна',
+    lastName: 'Петрова',
+    middleName: 'Викторовна',
+    phone: '375293335566',
+    email: 'anna.petrova@example.com',
+};
 
 // "Заглушка" с данными для примера
 const mockActiveRequests: ServiceRequest[] = [
@@ -32,8 +47,29 @@ const getStatusClassName = (status: ServiceRequest['status']) => {
 };
 
 export const ClientProfilePage: React.FC = () => {
-    var navigate = useNavigate();
     const [activeTab, setActiveTab] = useState<'active' | 'history'>('active');
+    const [user, setUser] = useState<UserProfile>(mockUser);
+    const [isEditing, setIsEditing] = useState(false);
+    const [formData, setFormData] = useState<UserProfile>(mockUser);
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleEditClick = () => {
+        setFormData(user); // Загружаем текущие данные в форму
+        setIsEditing(true);
+    };
+
+    const handleCancelClick = () => {
+        setIsEditing(false);
+    };
+
+    const handleSaveClick = () => {
+        // Здесь будет логика отправки данных на сервер
+        setUser(formData); // Обновляем "основные" данные
+        setIsEditing(false);
+    };
 
     const requestsToShow = activeTab === 'active' ? mockActiveRequests : mockHistoryRequests;
 
@@ -51,6 +87,64 @@ export const ClientProfilePage: React.FC = () => {
                             У вас {mockActiveRequests.length} активных заявок.
                         </p>
                     </div>
+                </div>
+
+                <div className="profile-section card">
+                    <div className="profile-header">
+                        <h2 className="section-title">Личные данные</h2>
+                        <div className="profile-actions">
+                            {isEditing ? (
+                                <>
+                                    <button className="action-button cancel-button" onClick={handleCancelClick}>Отмена</button>
+                                    <button className="action-button save-button" onClick={handleSaveClick}>Сохранить</button>
+                                </>
+                            ) : (
+                                <button className="action-button save-button" onClick={handleEditClick}>Редактировать</button>
+                            )}
+                        </div>
+                    </div>
+
+                    {isEditing ? (
+                        /* --- Режим Редактирования --- */
+                        <div className="profile-form">
+                            <div className="input-group">
+                                <label htmlFor="fullName" className="form-label">* Фамилия</label>
+                                <input type="text" id="fullName" name="fullName" className="form-input" value={formData.lastName} onChange={handleInputChange} />
+                            </div>
+                            <div className="input-group">
+                                <label htmlFor="fullName" className="form-label">* Имя</label>
+                                <input type="text" id="fullName" name="fullName" className="form-input" value={formData.firstName} onChange={handleInputChange} />
+                            </div>
+                            <div className="input-group">
+                                <label htmlFor="fullName" className="form-label">* Отчество</label>
+                                <input type="text" id="fullName" name="fullName" className="form-input" value={formData.middleName} onChange={handleInputChange} />
+                            </div>
+                            <div className="input-group">
+                                <label htmlFor="phone" className="form-label">* Телефон</label>
+                                <input type="tel" id="phone" name="phone" className="form-input" value={formData.phone} onChange={handleInputChange} />
+                            </div>
+                            <div className="input-group">
+                                <label htmlFor="email" className="form-label">* Email</label>
+                                <input type="email" id="email" name="email" className="form-input" value={formData.email} onChange={handleInputChange} />
+                            </div>
+                        </div>
+                    ) : (
+                        /* --- Режим Просмотра --- */
+                        <div className="profile-view">
+                            <div className="info-block">
+                                <strong className="info-label">ФИО:</strong>
+                                <span className="info-value">{user.lastName} {user.firstName} {user.middleName}</span>
+                            </div>
+                            <div className="info-block">
+                                <strong className="info-label">Телефон:</strong>
+                                <span className="info-value">{user.phone}</span>
+                            </div>
+                            <div className="info-block">
+                                <strong className="info-label">Email:</strong>
+                                <span className="info-value">{user.email}</span>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* ========================================================== */}

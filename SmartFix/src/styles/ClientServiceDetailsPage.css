@@ -163,11 +163,13 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(17, 24, 39, 0.6); /* Полупрозрачный фон */
+    background-color: rgba(17, 24, 39, 0.6);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    overflow-y: auto; /* Добавляем скролл, если форма не влезает */
+    padding: 20px;
 }
 .modal-content {
     background: #ffffff;
@@ -189,7 +191,7 @@
     font-size: 20px;
     font-weight: 600;
     margin: 0;
-    color: #111827;
+    color: #1c1e21;
 }
 .modal-close-button {
     background: none;
@@ -200,6 +202,40 @@
     cursor: pointer;
 }
 .modal-body {}
+.application-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.input-group {
+    display: flex;
+    flex-direction: column;
+}
+.form-label {
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+}
+.form-input, .form-textarea, .form-file-input {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+.form-textarea {
+    resize: vertical;
+}
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    border-top: 1px solid #e5e7eb;
+    padding-top: 20px;
+    margin-top: 24px;
+}
 .application-form {
     display: flex;
     flex-direction: column;
@@ -250,7 +286,7 @@
     padding-top: 20px;
     margin-top: 24px;
 }
-.action-button {
+.download-button {
     padding: 10px 20px;
     border-radius: 6px;
     font-size: 14px;

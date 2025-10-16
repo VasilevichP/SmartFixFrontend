@@ -187,7 +187,7 @@
     margin: 10px 0 10px 0;
 }
 /* Кнопка "Детали" */
-.action-button {
+.download-button {
     background-color: #3399FD;
     color: #ffffff;
     border: none;
@@ -203,7 +203,7 @@
     background-color: red;
 }
 
-.action-button:hover {
+.download-button:hover {
     background-color: #2563eb;
 }
 

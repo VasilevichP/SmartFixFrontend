@@ -42,7 +42,7 @@ export const ManagerDictionariesPage: React.FC = () => {
                         <h2 className="card-title">Категории услуг</h2>
                         <div className="add-item-form">
                             <input type="text" className="form-input" placeholder="Название новой категории..."/>
-                            <button className="action-button add-button">Добавить</button>
+                            <button className="download-button add-button">Добавить</button>
                         </div>
                         <ul className="items-list">
                             {mockCategories.map(category => (
@@ -64,7 +64,7 @@ export const ManagerDictionariesPage: React.FC = () => {
                         <h2 className="card-title">Специалисты</h2>
                         <div className="add-item-form">
                             <input type="text" className="form-input" placeholder="ФИО нового специалиста..."/>
-                            <button className="action-button add-button">Добавить</button>
+                            <button className="download-button add-button">Добавить</button>
                         </div>
                         <ul className="items-list">
                             {mockSpecialists.map(specialist => (

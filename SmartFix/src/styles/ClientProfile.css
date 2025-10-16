@@ -26,20 +26,42 @@
     color: #6b7280;
     margin: 4px 0 0 0;
 }
-.new-request-button {
-    background-color: #3b82f6;
-    color: #ffffff;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    text-decoration: none;
-    transition: background-color 0.2s;
+.profile-view {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
 }
-.new-request-button:hover {
-    background-color: #2563eb;
+
+.profile-form {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.profile-section {
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 20px;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+}
+
+.profile-actions {
+    display: flex;
+    gap: 12px;
 }
 
 /* --- Контейнер для списка заявок --- */
