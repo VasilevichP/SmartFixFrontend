@@ -74,7 +74,7 @@ export const ManagersServiceDetailsPage: React.FC = () => {
                 <div className="form-container card">
                     <h2 className="card-title">Основная информация</h2>
                     <form id="service-details-form">
-                        <div className="form-grid">
+                        {/*<div className="form-grid">*/}
                             {/* Левая часть - поля */}
                             <div className="form-fields">
                                 <div className="fields-row">
@@ -112,13 +112,7 @@ export const ManagersServiceDetailsPage: React.FC = () => {
                                     <label htmlFor="is-available" className="checkbox-label">Услуга доступна для клиентов</label>
                                 </div>
                             </div>
-
-                            <div className="form-image-section">
-                                <label className="form-label">Изображение услуги</label>
-                                <img src={mockService.imageUrl} alt={mockService.name} className="service-image" />
-                                <input type="file" className="form-file-input" />
-                            </div>
-                        </div>
+                        {/*</div>*/}
                         <div className="header-actions">
                             <button type="button" className="action-button delete-button">Удалить</button>
                             <button type="submit" form="service-details-form" className="action-button save-button">Сохранить</button>

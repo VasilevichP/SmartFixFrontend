@@ -1,97 +1,97 @@
 import {useState} from 'react';
 import '../styles/LoginPage.css';
+import {Link, useNavigate} from "react-router-dom";
+import {authApi} from "../api/authApi.ts";
+import PhoneInput, {isValidPhoneNumber} from "react-phone-number-input/input";
 
 export const RegisterPage = () => {
-    // Состояния для всех полей
+    const navigate = useNavigate();
+
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [phone, setPhone] = useState("");
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
-    const [middleName, setMiddleName] = useState("");
-    // const [error, setError] = useState("");
+    const [phone, setPhone] = useState<string | undefined>(undefined);
+    const [name, setName] = useState("");
+
+    const [error, setError] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleSubmit = async (e: any) => {
+        e.preventDefault();
+        setError("");
+        setIsLoading(true);
+
+        if (phone && !isValidPhoneNumber(phone)) {
+            setError("Введен некорректный номер телефона");
+            setIsLoading(false);
+            return;
+        }
+        try {
+
+            const registerData = {
+                email: email,
+                password: password,
+                name: name,
+                phone: phone
+            };
+            await authApi.register(registerData);
+            navigate('/');
+        } catch (err: any) {
+            console.error("Ошибка регистрации:", err);
+            const serverMessage = err.response?.data || "Произошла ошибка при регистрации. Попробуйте позже.";
+            setError(typeof serverMessage === 'string' ? serverMessage : "Ошибка сервера");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
 
     return (
         <div className="login-page-container">
-            <div className="login-form-wrapper register-wrapper">
-                <h1 className="login-title">Регистрация в SmartFix</h1>
-                <p className="login-subtitle">Создайте аккаунт, чтобы управлять своими заявками</p>
+            <div className="login-form-wrapper">
+                <h1 className="login-title">Регистрация</h1>
+                <p className="login-subtitle">Введите данные для создания аккаунта</p>
 
-                <form className="login-form">
-                    {/* --- НОВЫЙ БЛОК: ФАМИЛИЯ И ИМЯ НА ОДНОЙ СТРОКЕ --- */}
-                    <div className="form-row">
-                        <div className="input-group">
-                            <label htmlFor="lastName" className="input-label">
-                                * Фамилия
-                            </label>
-                            <input
-                                type="text"
-                                id="lastName"
-                                className="input-field"
-                                placeholder="Иванов"
-                                value={lastName}
-                                onChange={(e) => setLastName(e.target.value)}
-                            />
-                        </div>
-                        <div className="input-group">
-                            <label htmlFor="firstName" className="input-label">
-                                * Имя
-                            </label>
-                            <input
-                                type="text"
-                                id="firstName"
-                                className="input-field"
-                                placeholder="Иван"
-                                value={firstName}
-                                onChange={(e) => setFirstName(e.target.value)}
-                            />
-                        </div>
-                        <div className="input-group">
-                            <label htmlFor="middleName" className="input-label">
-                                Отчество
-                            </label>
-                            <input
-                                type="text"
-                                id="middleName"
-                                className="input-field"
-                                placeholder="Иванович"
-                                value={middleName}
-                                onChange={(e) => setMiddleName(e.target.value)}
-                            />
-                        </div>
+                <form className="login-form" onSubmit={handleSubmit}>
+
+                    <div className="input-group">
+                        <label htmlFor="middleName" className="input-label">
+                            * ФИО
+                        </label>
+                        <input required={true}
+                               type="text"
+                               id="middleName"
+                               className="input-field"
+                               placeholder="Иванов Иван Иванович"
+                               value={name}
+                               onChange={(e) => setName(e.target.value)}
+                        />
                     </div>
 
-                    {/* --- НОВЫЙ БЛОК: ОТЧЕСТВО --- */}
-
-
-                    {/* --- НОВЫЙ БЛОК: ТЕЛЕФОН --- */}
                     <div className="input-group">
                         <label htmlFor="phone" className="input-label">
                             * Номер телефона
                         </label>
-                        <input
-                            type="tel"
-                            id="phone"
-                            className="input-field"
-                            placeholder="375293334455"
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
+                        <PhoneInput required={true}
+                                    id="phone"
+                                    className="input-field"
+                                    country="BY"
+                                    placeholder="375291119900"
+                                    value={phone}
+                                    onChange={setPhone}
                         />
                     </div>
-
-                    <hr className="form-divider" />
 
                     <div className="input-group">
                         <label htmlFor="email" className="input-label">
                             * Адрес эл. почты
                         </label>
-                        <input
-                            type="email"
-                            id="email"
-                            className="input-field"
-                            placeholder="example@email.com"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                        <input required={true}
+                               type="email"
+                               id="email"
+                               className="input-field"
+                               placeholder="example@email.com"
+                               value={email}
+                               onChange={(e) => setEmail(e.target.value)}
                         />
                     </div>
 
@@ -99,23 +99,24 @@ export const RegisterPage = () => {
                         <label htmlFor="password" className="input-label">
                             * Пароль
                         </label>
-                        <input
-                            type="password"
-                            id="password"
-                            className="input-field"
-                            placeholder="••••••••"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                        <input required={true}
+                               type="password"
+                               id="password"
+                               className="input-field"
+                               placeholder="••••••••"
+                               value={password}
+                               onChange={(e) => setPassword(e.target.value)}
                         />
                     </div>
+                    <p className="error-text">{error}</p>
 
-                    <button type="submit" className="login-button">
-                        Создать аккаунт
+                    <button type="submit" className="login-button" disabled={isLoading}>
+                        {isLoading ? "Регистрация..." : "Создать аккаунт"}
                     </button>
                 </form>
 
                 <div className="login-footer">
-                    <p>Уже зарегистрированы? <a href="/" className="footer-link">Войти</a></p>
+                    <p>Уже зарегистрированы? <Link to="/" className="footer-link">Войти</Link></p>
                 </div>
 
             </div>

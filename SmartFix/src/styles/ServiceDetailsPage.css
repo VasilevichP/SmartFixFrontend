@@ -78,11 +78,11 @@
     margin-bottom: 24px;
 }
 
-.form-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr; /* Левая колонка шире правой */
-    gap: 32px;
-}
+/*.form-grid {*/
+/*    display: grid;*/
+/*    grid-template-columns: 2fr 1fr; !* Левая колонка шире правой *!*/
+/*    gap: 32px;*/
+/*}*/
 
 .form-fields {
     display: flex;

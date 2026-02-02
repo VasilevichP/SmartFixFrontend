@@ -94,7 +94,7 @@ export const ClientServiceDetailsPage: React.FC = () => {
                         </div>
 
                         <button className="apply-button" onClick={handleOpenModal}>
-                            Подать заявку на эту услугу
+                            Подать заявку
                         </button>
                     </div>
                 </div>

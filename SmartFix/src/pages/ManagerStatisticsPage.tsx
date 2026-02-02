@@ -15,52 +15,6 @@ import {
 import {Line, Doughnut, Bar} from 'react-chartjs-2';
 import '../styles/StatisticsPage.css';
 
-// --- Типы для секции "Заявки" ---
-
-// Для KPI-карточек
-export interface RequestKpiData {
-    newRequests: { value: number; trend: number; };
-    inProgress: { value: number; trend: number; };
-    avgRepairTimeDays: { value: number; trend: number; };
-    csat: { value: number; trend: number; };
-}
-
-// Для линейного графика динамики
-export interface RequestDynamicsDataPoint {
-    date: string;
-    new: number;
-    closed: number;
-}
-
-// Для круговой диаграммы по статусам
-export interface RequestStatusDistributionDataPoint {
-    name: 'Новые' | 'В работе' | 'На диагностике' | 'Готовы';
-    value: number;
-}
-
-// Для таблицы эффективности специалистов
-export interface SpecialistPerformanceData {
-    name: string;
-    closedCount: number;
-    avgTimeDays: number;
-    avgRating: number;
-}
-
-// --- Типы для секции "Услуги" ---
-
-// Для KPI-карточек по услугам
-export interface ServiceKpiData {
-    totalServices: number;
-    mostPopular: { name: string; count: number; };
-    highestRated: { name: string; rating: number; };
-}
-
-// Для гистограммы популярности услуг
-export interface ServicePopularityDataPoint {
-    name: string;
-    requestCount: number;
-}
-
 const mockRequestData = {
     kpis: {
         newRequests: {value: 42, trend: 15},

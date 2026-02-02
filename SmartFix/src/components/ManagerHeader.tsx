@@ -27,7 +27,7 @@ const ManagerHeader = () => {
                     </nav>
                 </div>
                 <div className="header-right">
-                    <a href="/logout" className="nav-link">
+                    <a href="/" className="nav-link">
                         Выйти
                     </a>
                 </div>

@@ -2,8 +2,6 @@
 import '../styles/Header.css'; // Используем общий файл стилей для хэдеров
 import logo from '../assets/logo.png'
 
-// Пропсы компонента (пока не используются, но это задел на будущее)
-
 const ClientHeader= () => {
     return (
         <header className="header-container">

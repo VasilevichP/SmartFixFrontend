@@ -118,6 +118,12 @@ p{
     color: #4b4f56;
 }
 
+.error-text{
+    color: #e10202;
+    font-size: 14px;
+    margin: 0;
+}
+
 .form-row {
     display: flex;
     gap: 16px;

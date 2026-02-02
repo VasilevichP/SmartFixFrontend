@@ -24,7 +24,7 @@ function App() {
                 <Route path="/manager/requests/details" element={<ManagerRequestDetailsPage/>}/>
                 <Route path="/manager/services" element={<ManagerServicesPage/>}/>
                 <Route path="/manager/services/create" element={<ManagerCreateServicePage/>}/>
-                <Route path="/manager/services/details" element={<ManagersServiceDetailsPage/>}/>
+                <Route path="/manager/services/:id" element={<ManagersServiceDetailsPage/>}/>
                 <Route path="/manager/dictionaries" element={<ManagerDictionariesPage/>}/>
                 <Route path="/manager/statistics" element={<ManagerStatisticsPage/>}/>
                 <Route path="/catalog" element={<ClientCatalogPage/>}/>
