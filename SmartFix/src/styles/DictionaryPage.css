@@ -17,66 +17,60 @@
 /* Сетка для двух колонок */
 .dictionaries-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Две колонки */
-    gap: 24px;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 25px;
 }
 
-/* Карточка для одного справочника */
 .dictionary-card {
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.06);
-    padding: 24px;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    height: 300px;
+}
+
+.wide-card {
+    grid-column: 1 / -1; /* Растянуть на всю ширину */
 }
 
 .card-title {
     font-size: 18px;
-    font-weight: 600;
-    color: #111827;
-    margin-top: 0;
-    margin-bottom: 20px;
-    border-bottom: 1px solid #e5e7eb;
-    padding-bottom: 12px;
+    margin-bottom: 15px;
+    color: #444;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
 }
 
-/* Форма для добавления нового элемента */
-.add-item-form {
+/* Форма добавления */
+.add-item-row {
     display: flex;
-    gap: 8px;
-    margin-bottom: 24px;
+    gap: 10px;
+    margin-bottom: 15px;
 }
 
-.form-input {
-    flex-grow: 1; /* Поле ввода занимает все доступное место */
+.form-input, .form-select {
+    flex-grow: 1;
     padding: 8px 12px;
-    font-size: 14px;
-    border: 1px solid #d1d5db;
+    border: 1px solid #ddd;
     border-radius: 6px;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    font-size: 14px;
 }
 
-.form-input:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-}
-
-.download-button {
+.add-btn {
+    background-color: #3399FD;
+    font-size: 14px;
+    color: white;
     border: none;
     padding: 8px 16px;
     border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: background-color 0.2s;
 }
 
-.add-button{
-    background-color: #3399FD;
-    color: #ffffff;
-}
-.add-button:hover {
-    background-color: #2563eb;
+.add-btn:hover {
+    background-color: #3b82f6;
 }
 
 /* Список элементов */
@@ -84,16 +78,17 @@
     list-style: none;
     padding: 0;
     margin: 0;
-    display: flex;
-    flex-direction: column;
+    flex-grow: 1;
+    overflow-y: auto;
+    max-height: 300px; /* Ограничение высоты */
 }
 
 .list-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 0;
-    border-bottom: 1px solid #f3f4f6;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
 }
 
 .list-item:last-child {
@@ -102,27 +97,68 @@
 
 .item-name {
     font-size: 14px;
-    color: #374151;
+    color: #333;
 }
 
+/* Кнопки действий (Текст вместо иконок) */
 .item-actions {
     display: flex;
-    gap: 8px;
+    gap: 10px;
 }
 
-.icon-button {
+.text-btn {
     background: none;
     border: none;
-    padding: 4px;
+    font-size: 13px;
     cursor: pointer;
+    padding: 2px 6px;
     border-radius: 4px;
-    transition: background-color 0.2s;
-    font-size: 16px; /* Размер иконок-эмодзи */
 }
 
-/* Адаптивность для мобильных устройств */
-@media (max-width: 992px) {
-    .dictionaries-grid {
-        grid-template-columns: 1fr; /* Одна колонка */
-    }
+.edit-btn {
+    color: #007bff;
+}
+.edit-btn:hover {
+    background-color: #f0f4ff;
+}
+
+.delete-btn {
+    color: #dc3545;
+}
+.delete-btn:hover {
+    background-color: #fff0f1;
+}
+
+/* Сетка для формы добавления модели */
+.add-model-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 2fr auto;
+    gap: 15px;
+    margin-bottom: 20px;
+    align-items: center;
+}
+
+/* Таблица для моделей */
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.simple-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #1a1a1a;
+}
+
+.simple-table th {
+    text-align: left;
+    padding: 10px;
+    background-color: #f8f9fa;
+    color: #666;
+    font-size: 15px;
+}
+
+.simple-table td {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
 }

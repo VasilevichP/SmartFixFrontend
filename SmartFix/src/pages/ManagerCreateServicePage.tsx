@@ -10,7 +10,7 @@ import {type DeviceModel, deviceModelsApi} from "../api/deviceModelsApi.ts";
 
 export const ManagerCreateServicePage: React.FC = () => {
     const navigate = useNavigate();
-    const [token, setToken] = useState<string | null>(null);
+    const [token, setToken] = useState("");
 
     const [categories, setCategories] = useState<Category[]>([]);
     const [deviceTypes, setDeviceTypes] = useState<DeviceType[]>([]);
@@ -58,25 +58,18 @@ export const ManagerCreateServicePage: React.FC = () => {
         isAvailable: true
     });
 
-    useEffect(() => {
-        const loadModels = async () => {
-            // Грузим модели только если выбран Тип (как минимум)
-            if (formData.deviceTypeId) {
-                try {
-                    // Передаем пустую строку как undefined, если производитель не выбран
-                    const manufId = formData.manufacturerId || undefined;
-                    const data = await deviceModelsApi.getDeviceModelsByTypeAndManufacturer(token as string, formData.deviceTypeId, manufId);
-                    setModels(data);
-                } catch (err) {
-                    console.error("Ошибка загрузки моделей", err);
-                }
-            } else {
-                setModels([]); // Если тип не выбран, список моделей пуст
-            }
-        };
-        loadModels();
-    }, [formData.deviceTypeId, formData.manufacturerId]);
-
+    const handleCascadeLoad = async (typeId: string, manufId?: string) => {
+        if (!typeId) {
+            setModels([]);
+            return;
+        }
+        try {
+            const data = await deviceModelsApi.getDeviceModelsByTypeAndManufacturer(token, typeId, manufId || undefined);
+            setModels(data);
+        } catch (e) {
+            console.log(e);
+        }
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const {id, value} = e.target;
@@ -89,23 +82,24 @@ export const ManagerCreateServicePage: React.FC = () => {
 
     // Спец. обработчик для Типа (сбрасываем дочерние поля)
     const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const value = e.target.value;
+        const val = e.target.value;
         setFormData(prev => ({
             ...prev,
-            deviceTypeId: value,
-            manufacturerId: '', // Сброс бренда
-            deviceModelId: ''   // Сброс модели
+            deviceTypeId: val,
+            manufacturerId: '',
+            deviceModelId: ''
         }));
+        handleCascadeLoad(val, undefined);
     };
 
-    // Спец. обработчик для Производителя (сбрасываем модель)
     const handleManufacturerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const value = e.target.value;
+        const val = e.target.value;
         setFormData(prev => ({
             ...prev,
-            manufacturerId: value,
-            deviceModelId: ''   // Сброс модели, т.к. список моделей изменится
+            manufacturerId: val,
+            deviceModelId: ''
         }));
+        handleCascadeLoad(formData.deviceTypeId, val);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -127,15 +121,15 @@ export const ManagerCreateServicePage: React.FC = () => {
                 description: formData.description,
                 categoryId: formData.categoryId,
                 deviceTypeId: formData.deviceTypeId,
-                manufacturerId: formData.manufacturerId,
-                deviceModelId: formData.deviceModelId,
+                manufacturerId: formData.manufacturerId === "" ? undefined : formData.manufacturerId,
+                deviceModelId: formData.deviceModelId === "" ? undefined : formData.deviceModelId,
                 price: parseFloat(formData.price),
                 warrantyPeriod: parseInt(formData.warrantyPeriod)
             };
 
             await servicesApi.createService(token as string, command);
 
-            navigate('/manager/services');
+            // navigate('/manager/services');
         } catch (err: any) {
             console.log("Ошибка создания услуги", err);
             const msg = err.response?.data || "Произошла ошибка при создании услуги";
@@ -168,24 +162,25 @@ export const ManagerCreateServicePage: React.FC = () => {
             <div className="create-service-page-container">
                 <div className="form-header">
                     <h1 className="form-title">Создание новой услуги</h1>
-                    <p className="form-subtitle">Заполните все поля, чтобы добавить услугу в каталог</p>
+                    <p className="form-subtitle">Заполните обязательные поля, чтобы добавить услугу в каталог</p>
                 </div>
 
                 <div className="form-container">
                     <form onSubmit={handleSubmit}>
                         <div className="form-grid">
                             <div className="input-group">
-                                <label htmlFor="name" className="form-label">Название услуги</label>
+                                <label htmlFor="name" className="form-label">* Название услуги</label>
                                 <input type="text" id="name" className="form-input"
                                        required={true} value={formData.name} onChange={handleChange}
                                        placeholder="Например, Замена экрана iPhone 14 Pro"/>
                             </div>
 
                             <div className="input-group">
-                                <label htmlFor="categoryId" className="form-label">Категория</label>
+                                <label htmlFor="categoryId" className="form-label">* Категория</label>
                                 <select id="categoryId" className="form-select"
                                         value={formData.categoryId}
                                         onChange={handleChange} required={true}>
+                                    <option value="">Выберите категорию...</option>
                                     {categories.map(c => (
                                         <option key={c.id} value={c.id}>{c.name}</option>
                                     ))}
@@ -193,7 +188,7 @@ export const ManagerCreateServicePage: React.FC = () => {
                             </div>
 
                             <div className="input-group">
-                                <label htmlFor="deviceTypeId" className="form-label">Тип устройства *</label>
+                                <label htmlFor="deviceTypeId" className="form-label">* Тип устройства</label>
                                 <select
                                     id="deviceTypeId"
                                     className="form-select"
@@ -246,7 +241,7 @@ export const ManagerCreateServicePage: React.FC = () => {
                             </div>
 
                             <div className="input-group">
-                                <label htmlFor="price" className="form-label">Цена (руб.)</label>
+                                <label htmlFor="price" className="form-label">* Цена (руб.)</label>
                                 <input type="number" id="price" className="form-input"
                                        placeholder="100.00" step="0.01"
                                        value={formData.price} onChange={handleChange} required={true}

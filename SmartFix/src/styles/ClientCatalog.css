@@ -8,8 +8,8 @@
 
 /* --- Строка поиска --- */
 .search-bar-container {
-    max-width: 800px;
-    margin: 24px auto 32px auto;
+    width: 50%;
+    margin: 24px 0 32px auto;
 }
 .search-input-wrapper {
     position: relative;
@@ -17,7 +17,7 @@
 .search-input {
     width: 100%;
     padding: 12px 40px 12px 16px;
-    font-size: 16px;
+    font-size: 15px;
     border: 1px solid #d1d5db;
     border-radius: 9999px; /* Делает инпут полностью круглым */
     box-sizing: border-box;
@@ -42,19 +42,29 @@
 /* --- Основной макет: фильтры + контент --- */
 .catalog-layout {
     display: grid;
-    grid-template-columns: 260px 1fr; /* Фиксированная боковая панель, остальное - контент */
+    grid-template-columns: 25% 1fr; /* Фиксированная боковая панель, остальное - контент */
     gap: 32px;
 }
 
 /* --- Боковая панель с фильтрами --- */
-.filters-sidebar {
+.client-filters-sidebar {
     background-color: #ffffff;
     color: #1c1e21;
     padding: 24px;
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    align-self: start; /* Чтобы панель не растягивалась на всю высоту */
+    align-self: start;
 }
+
+.filters-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
 .filters-title {
     font-size: 18px;
     font-weight: 600;
@@ -188,6 +198,64 @@
     border-color: #3b82f6;
 }
 
+.individual-request-banner {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 30px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid #90caf9;
+}
+
+.individual-request-banner:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.2);
+}
+
+.banner-icon {
+    font-size: 2.3rem;
+}
+
+.banner-text h3 {
+    margin: 0 0 5px 0;
+    color: #1565c0;
+    font-size: 1.1rem;
+}
+
+.banner-text p {
+    margin: 0;
+    color: #555;
+    font-size: 15px;
+}
+
+.banner-button {
+    margin-left: auto; /* Прижимает кнопку вправо */
+    background-color: #1976d2;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.card-device-info {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 10px;
+    background-color: #f8f9fa;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.card-warranty {
+    font-size: 0.8rem;
+    color: #28a745;
+}
 /* --- Адаптивность --- */
 @media (max-width: 992px) {
     .catalog-layout {

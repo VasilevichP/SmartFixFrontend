@@ -1,107 +1,163 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import '../styles/ClientCatalog.css';
 import ClientHeader from "../components/ClientHeader.tsx";
 import {useNavigate} from "react-router-dom";
-
-// Определяем структуру данных для одной услуги
-interface Service {
-    id: number;
-    name: string;
-    category: string;
-    price: number;
-    executionTime: string;
-    description: string;
-    imageUrl: string;
-}
-
-// "Заглушка" с данными для примера. Нужно больше данных для пагинации.
-const mockServices: Service[] = [
-    {
-        id: 1,
-        name: 'Диагностика ноутбука',
-        category: 'Ремонт ноутбуков',
-        price: 1500,
-        executionTime: '1-2 дня',
-        description: 'Полная аппаратная и программная диагностика для выявления неисправностей.',
-        imageUrl: 'https://rms.kufar.by/v1/list_thumbs_2x/adim1/1d9fc6f9-8473-44c4-86aa-7279c165c064.jpg'
-    },
-    {
-        id: 2,
-        name: 'Замена экрана смартфона',
-        category: 'Ремонт смартфонов',
-        price: 4500,
-        executionTime: '2-4 часа',
-        description: 'Установка оригинального дисплейного модуля на вашу модель смартфона.',
-        imageUrl: 'https://via.placeholder.com/300x200/F1FAEE/000000?text=Phone'
-    },
-    {
-        id: 3,
-        name: 'Чистка от пыли и замена термопасты',
-        category: 'Ремонт ноутбуков',
-        price: 2000,
-        executionTime: '1 час',
-        description: 'Профилактическая чистка системы охлаждения для предотвращения перегрева.',
-        imageUrl: 'https://via.placeholder.com/300x200/457B9D/FFFFFF?text=Cooling'
-    },
-    {
-        id: 4,
-        name: 'Восстановление данных с HDD',
-        category: 'Восстановление данных',
-        price: 5000,
-        executionTime: '3-5 дней',
-        description: 'Программное восстановление удаленных файлов с жесткого диска.',
-        imageUrl: 'https://via.placeholder.com/300x200/E63946/FFFFFF?text=Data'
-    },
-    {
-        id: 5,
-        name: 'Замена аккумулятора iPhone',
-        category: 'Ремонт смартфонов',
-        price: 2500,
-        executionTime: '30 минут',
-        description: 'Быстрая замена изношенного аккумулятора на новый оригинальный.',
-        imageUrl: 'https://via.placeholder.com/300x200/F1FAEE/000000?text=Battery'
-    },
-    {
-        id: 6,
-        name: 'Установка Windows и драйверов',
-        category: 'Обслуживание ПК',
-        price: 1800,
-        executionTime: '1-2 часа',
-        description: 'Чистая установка операционной системы и всех необходимых драйверов.',
-        imageUrl: 'https://via.placeholder.com/300x200/1D3557/FFFFFF?text=Windows'
-    },
-    {
-        id: 7,
-        name: 'Ремонт материнской платы',
-        category: 'Ремонт ноутбуков',
-        price: 8000,
-        executionTime: '5-7 дней',
-        description: 'Сложный компонентный ремонт материнской платы после залития или скачка напряжения.',
-        imageUrl: 'https://via.placeholder.com/300x200/A8DADC/000000?text=Motherboard'
-    },
-    {
-        id: 8,
-        name: 'Замена разъема зарядки',
-        category: 'Ремонт смартфонов',
-        price: 1200,
-        executionTime: '1 час',
-        description: 'Перепайка или замена неисправного порта зарядки USB-C / Lightning.',
-        imageUrl: 'https://via.placeholder.com/300x200/F1FAEE/000000?text=Port'
-    },
-];
+import {categoriesApi, type Category} from "../api/categoriesApi.ts";
+import {type DeviceType, deviceTypesApi} from "../api/deviceTypesApi.ts";
+import {type Manufacturer, manufacturersApi} from "../api/manufacturersApi.ts";
+import {type DeviceModel, deviceModelsApi} from "../api/deviceModelsApi.ts";
+import {type ServiceForClient, servicesApi, type ServicesClientFilterParams} from "../api/servicesApi.ts";
+import {CreateRequestModal} from "../components/CreateRequestModal.tsx";
 
 export const ClientCatalogPage: React.FC = () => {
     var navigate = useNavigate();
+    const [services, setServices] = useState<ServiceForClient[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [hasSearched, setHasSearched] = useState(false); // Флаг: искал ли пользователь что-то
+
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [deviceTypes, setDeviceTypes] = useState<DeviceType[]>([]);
+    const [manufacturers, setManufacturers] = useState<Manufacturer[]>([]);
+    const [models, setModels] = useState<DeviceModel[]>([]);
+
+    const [searchQuery, setSearchQuery] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState("");
+    const [selectedType, setSelectedType] = useState("");
+    const [selectedManuf, setSelectedManuf] = useState("");
+    const [selectedModel, setSelectedModel] = useState("");
+
+    const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
+    const [modalData, setModalData] = useState<any>(null);
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 6;
+    const token = localStorage.getItem('token') || "";
+
+    useEffect(() => {
+        if (!token) {
+            navigate('/');
+            return;
+        }
+        const loadDictionaries = async () => {
+            try {
+                const [cats, types, manufs] = await Promise.all([
+                    categoriesApi.getAllServiceCategories(token),
+                    deviceTypesApi.getAllDeviceTypes(token),
+                    manufacturersApi.getAllManufacturers(token),
+                ]);
+                setCategories(cats);
+                setDeviceTypes(types);
+                setManufacturers(manufs);
+            } catch (e) {
+                console.log("Ошибка загрузки справочников", e);
+            }
+        };
+        loadDictionaries();
+    }, []);
+
+    useEffect(() => {
+        const loadModels = async () => {
+            if (selectedType && selectedManuf) {
+                try {
+                    const data = await deviceModelsApi.getDeviceModelsByTypeAndManufacturer(token, selectedType, selectedManuf);
+                    setModels(data);
+                } catch (e) {
+                    console.error(e);
+                }
+            } else {
+                setModels([]);
+            }
+        };
+        loadModels();
+    }, [selectedType, selectedManuf]);
+
+    const fetchServices = async () => {
+        const isFilterActive = selectedCategory || selectedType || searchQuery;
+
+        if (!isFilterActive) {
+            setServices([]);
+            setHasSearched(false);
+            return;
+        }
+
+        setIsLoading(true);
+        setHasSearched(true);
+        try {
+            const filters: ServicesClientFilterParams = {
+                searchTerm: searchQuery,
+                categoryId: selectedCategory || undefined,
+                deviceTypeId: selectedType || undefined,
+                manufacturerId: selectedManuf || undefined,
+                deviceModelId: selectedModel || undefined
+            }
+            const data = await servicesApi.getAllServicesForClient(token, filters);
+            setServices(data);
+            setCurrentPage(1); // Сброс на первую страницу при новом поиске
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchServices();
+    }, [selectedCategory, selectedModel, selectedType, selectedManuf]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (searchQuery) fetchServices();
+        }, 600);
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
+
+    const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedType(e.target.value);
+        setSelectedManuf(""); // Сброс бренда
+        setSelectedModel(""); // Сброс модели
+    };
+
+    const handleManufChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedManuf(e.target.value);
+        setSelectedModel(""); // Сброс модели
+    };
+
+    const handleReset = (e: React.MouseEvent) => {
+        e.preventDefault();
+        setSelectedCategory("");
+        setSelectedType("");
+        setSelectedManuf("");
+        setSelectedModel("");
+        setSearchQuery("");
+    }
+
+    const openIndividual = () => {
+        setModalData(null);
+        setIsRequestModalOpen(true);
+    };
+
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentServices = services.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(services.length / itemsPerPage);
+
+    const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+
     return (
         <div>
             <ClientHeader/>
             <div className="catalog-page-container">
-                {/* ========================================================== */}
-                {/* ===================== СТРОКА ПОИСКА ====================== */}
-                {/* ========================================================== */}
+
+                {/* --- ПОИСК --- */}
                 <div className="search-bar-container">
                     <div className="search-input-wrapper">
-                        <input type="text" className="search-input" placeholder="Найти услугу..."/>
+                        <input
+                            type="text"
+                            className="search-input"
+                            placeholder="Например: Замена экрана..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
                         <svg className="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
                              fill="currentColor">
                             <path fillRule="evenodd"
@@ -111,69 +167,172 @@ export const ClientCatalogPage: React.FC = () => {
                     </div>
                 </div>
 
-                {/* ========================================================== */}
-                {/* ==================== ОСНОВНОЙ МАКЕТ ====================== */}
-                {/* ========================================================== */}
                 <div className="catalog-layout">
-                    {/* --- Левая колонка: Фильтры --- */}
-                    <aside className="filters-sidebar">
-                        <h2 className="filters-title">Фильтры</h2>
+                    {/* --- ЛЕВАЯ КОЛОНКА: ФИЛЬТРЫ --- */}
+                    <aside className="client-filters-sidebar">
+                        <div className="filters-header">
+                            <h3 className="filters-title">Фильтры</h3>
+                            <a href="#" onClick={handleReset} className="reset-link">Сбросить</a>
+                        </div>
+
+                        {/* 1. Категория работ */}
                         <div className="filter-group">
-                            <label className="filter-label">Категория</label>
-                            <select className="filter-select">
-                                <option>Все категории</option>
-                                <option>Ремонт ноутбуков</option>
-                                <option>Ремонт смартфонов</option>
-                                <option>Восстановление данных</option>
-                                <option>Обслуживание ПК</option>
+                            <label className="filter-label">Категория услуги</label>
+                            <select className="filter-select" value={selectedCategory}
+                                    onChange={(e) => setSelectedCategory(e.target.value)}>
+                                <option value="">Все категории</option>
+                                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                             </select>
                         </div>
-                        <div className="filter-group">
-                            <label className="filter-label">Цена</label>
-                            <div className="radio-group">
-                                <div className="radio-item"><input type="radio" name="price" id="price-any"
-                                                                   defaultChecked/><label
-                                    htmlFor="price-any">Любая</label></div>
-                                <div className="radio-item"><input type="radio" name="price" id="price-1"/><label
-                                    htmlFor="price-1">До 50 руб.</label></div>
-                                <div className="radio-item"><input type="radio" name="price" id="price-2"/><label
-                                    htmlFor="price-2">50 - 100 руб.</label></div>
-                                <div className="radio-item"><input type="radio" name="price" id="price-3"/><label
-                                    htmlFor="price-3">От 100 руб.</label></div>
-                            </div>
+
+                        <hr style={{border: 0, borderTop: '1px solid #eee', margin: '15px 0'}}/>
+                        <div style={{fontSize: '0.9rem', fontWeight: 600, marginBottom: '10px', color: '#555'}}>Ваше
+                            устройство:
                         </div>
-                        <button className='action-button-secondary'>Применить фильтры</button>
+
+                        {/* 2. Тип устройства */}
+                        <div className="filter-group">
+                            <label className="filter-label">Тип</label>
+                            <select className="filter-select" value={selectedType} onChange={handleTypeChange}>
+                                <option value="">Не выбрано</option>
+                                {deviceTypes.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                            </select>
+                        </div>
+
+                        {/* 3. Производитель */}
+                        <div className="filter-group">
+                            <label className="filter-label">Бренд</label>
+                            <select
+                                className="filter-select"
+                                value={selectedManuf}
+                                onChange={handleManufChange}
+                                disabled={!selectedType}
+                            >
+                                <option value="">Любой</option>
+                                {manufacturers.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                            </select>
+                        </div>
+
+                        {/* 4. Модель */}
+                        <div className="filter-group">
+                            <label className="filter-label">Модель</label>
+                            <select
+                                className="filter-select"
+                                value={selectedModel}
+                                onChange={(e) => setSelectedModel(e.target.value)}
+                                disabled={models.length === 0}
+                            >
+                                <option value="">Любая / Не знаю</option>
+                                {models.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                            </select>
+                        </div>
                     </aside>
 
-                    {/* --- Правая колонка: Карточки и пагинация --- */}
+                    {/* --- ПРАВАЯ КОЛОНКА: СПИСОК --- */}
                     <main className="services-content">
-                        <div className="services-grid">
-                            {mockServices.map(service => (
-                                <div key={service.id} className="service-card" onClick={() => navigate('/catalog/details')}>
-                                    <img src={service.imageUrl} alt={service.name} className="card-image"/>
-                                    <div className="card-content">
-                                        <span className="card-category">{service.category}</span>
-                                        <h3 className="card-title">{service.name}</h3>
-                                        <p className="card-description">{service.description}</p>
-                                        <div className="card-footer">
-                                            <span className="card-price">{service.price} руб.</span>
-                                            {/*<button className="card-button">Подробнее</button>*/}
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
+
+                        {/* Блок "Индивидуальная заявка" (Всегда сверху) */}
+                        <div className="individual-request-banner" onClick={openIndividual}>
+                            <div className="banner-icon">🛠️</div>
+                            <div className="banner-text">
+                                <h3>Не нашли нужную услугу?</h3>
+                                <p>Оформите индивидуальную заявку, и мы рассчитаем стоимость ремонта вашего
+                                    устройства.</p>
+                            </div>
+                            <button className="banner-button">Оформить заявку</button>
                         </div>
 
-                        {/* --- Пагинация --- */}
-                        <nav className="pagination-container">
-                            <button className="pagination-button">&laquo; Назад</button>
-                            <button className="pagination-button active">1</button>
-                            <button className="pagination-button">2</button>
-                            <button className="pagination-button">3</button>
-                            <button className="pagination-button">Вперед &raquo;</button>
-                        </nav>
+                        {/* Список услуг */}
+                        {isLoading ? (
+                            <p style={{textAlign: 'center', padding: '40px', color: '#666'}}>Поиск услуг...</p>
+                        ) : !hasSearched ? (
+                            <div style={{textAlign: 'center', padding: '60px', color: '#888'}}>
+                                <h2>Выберите категорию или устройство</h2>
+                                <p>Чтобы увидеть доступные услуги, воспользуйтесь фильтрами слева.</p>
+                            </div>
+                        ) : services.length > 0 ? (
+                            <div className="services-grid">
+                                {currentServices.map(service => (
+                                    <div key={service.id} className="service-card"
+                                         onClick={() => navigate(`/catalog/${service.id}`)}>
+
+                                        <div className="card-content">
+                                            <span className="card-category">{service.categoryName}</span>
+
+                                            <h3 className="card-title">{service.name}</h3>
+
+                                            {/* ОТОБРАЖЕНИЕ РЕЙТИНГА */}
+                                            {service.averageRating > 0 && (
+                                                <div style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '4px',
+                                                    fontSize: '0.9rem',
+                                                    color: '#f39c12',
+                                                    fontWeight: 'bold'
+                                                }}>
+                                                    <span>★</span>
+                                                    <span>{service.averageRating}</span>
+                                                </div>
+                                            )}
+                                            {/* Отображаем, для кого услуга */}
+                                            <p className="card-device-info">
+                                                {service.deviceModelName
+                                                    ? `${service.manufacturerName} ${service.deviceModelName}`
+                                                    : `${service.deviceTypeName} (Все модели)`}
+                                            </p>
+
+                                            <div className="card-footer">
+                                                <span className="card-price">{service.price} руб.</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div style={{textAlign: 'center', padding: '40px', color: '#888'}}>
+                                <h3>Ничего не найдено</h3>
+                                <p>Попробуйте изменить параметры фильтрации или оформите индивидуальную заявку.</p>
+                            </div>
+                        )}
+
+                        {/* Пагинация */}
+                        {services.length > itemsPerPage && (
+                            <nav className="pagination-container">
+                                <button
+                                    className="pagination-button"
+                                    onClick={() => paginate(currentPage - 1)}
+                                    disabled={currentPage === 1}
+                                >
+                                    &laquo; Назад
+                                </button>
+
+                                {Array.from({length: totalPages}, (_, i) => (
+                                    <button
+                                        key={i + 1}
+                                        className={`pagination-button ${currentPage === i + 1 ? 'active' : ''}`}
+                                        onClick={() => paginate(i + 1)}
+                                    >
+                                        {i + 1}
+                                    </button>
+                                ))}
+
+                                <button
+                                    className="pagination-button"
+                                    onClick={() => paginate(currentPage + 1)}
+                                    disabled={currentPage === totalPages}
+                                >
+                                    Вперед &raquo;
+                                </button>
+                            </nav>
+                        )}
                     </main>
                 </div>
+                <CreateRequestModal
+                    isOpen={isRequestModalOpen}
+                    onClose={() => setIsRequestModalOpen(false)}
+                    initialData={modalData}
+                />
             </div>
         </div>
     );

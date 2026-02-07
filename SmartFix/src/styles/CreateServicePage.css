@@ -34,7 +34,7 @@
 .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr; /* Две колонки одинаковой ширины */
-    gap: 20px; /* Расстояние между ячейками */
+    gap: 16px; /* Расстояние между ячейками */
 }
 
 /* Класс для элементов, занимающих всю ширину */
@@ -139,7 +139,7 @@
 
 /* Кнопка "Создать" (основная) */
 .submit-button {
-    background-color: #3399FD; /* Зеленый */
+    background-color: #3399FD;
     color: #ffffff;
 }
 .submit-button:hover {

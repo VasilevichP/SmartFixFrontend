@@ -1,20 +1,20 @@
 import api from '../api/axios';
 
 
-export interface Manufacturer {
+export interface Specialist{
     id: string;
     name: string;
 }
-export interface CreateManufacturer {
+export interface CreateSpecialist {
     name: string;
 }
-export interface DeleteManufacturer {
+export interface DeleteSpecialist {
     id: string;
 }
-export const manufacturersApi = {
+export const specialistsApi = {
 
-    async getAllManufacturers(token: string) {
-        const response = await api.get('/Manufacturers',  {
+    async getAllSpecialists(token: string) {
+        const response = await api.get('/Specialists',  {
             withCredentials: true,
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -22,8 +22,8 @@ export const manufacturersApi = {
         });
         return response.data;
     },
-    async CreateManufacturer(token: string, data: CreateManufacturer) {
-        const response = await api.post('/Manufacturers',data,  {
+    async CreateSpecialist(token: string, data: CreateSpecialist) {
+        const response = await api.post('/Specialists',data,  {
             withCredentials: true,
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -31,8 +31,8 @@ export const manufacturersApi = {
         });
         return response.data;
     },
-    async UpdateManufacturer(token: string, data:Manufacturer) {
-        const response = await api.put('/Manufacturers',data,  {
+    async UpdateSpecialist(token: string, data:Specialist) {
+        const response = await api.put('/Specialists',data,  {
             withCredentials: true,
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -40,8 +40,8 @@ export const manufacturersApi = {
         });
         return response.data;
     },
-    async DeleteManufacturer(token: string, data: DeleteManufacturer) {
-        const response = await api.delete('/Manufacturers',  {
+    async DeleteSpecialist(token: string, data: DeleteSpecialist) {
+        const response = await api.delete('/Specialists',  {
             withCredentials: true,
             headers: {
                 Authorization: `Bearer ${token}`,

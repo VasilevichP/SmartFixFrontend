@@ -24,7 +24,7 @@
 
 /* --- ЛЕВАЯ КОЛОНКА (Сайдбар) --- */
 .filters-sidebar {
-    flex-shrink: 0;
+    width: 20%;
     background: #ffffff;
     border-radius: 8px;
     padding: 20px;
@@ -150,7 +150,7 @@
 }
 
 .add-button {
-    background-color: #007bff;
+    background-color: #3399FD;
     color: white;
     border: none;
     padding: 10px 20px;
@@ -184,12 +184,14 @@
     color: #6c757d;
     font-weight: 600;
     text-align: left;
-    padding: 16px;
+    padding: 10px;
+    font-size: 15px;
     border-bottom: 2px solid #dee2e6;
 }
 
 .table td {
-    padding: 16px;
+    padding: 10px;
+    font-size: 14px;
     border-bottom: 1px solid #dee2e6;
     color: #333;
 }

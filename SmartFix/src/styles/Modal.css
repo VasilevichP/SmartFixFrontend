@@ -1,0 +1,107 @@
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* Затемнение фона */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.modal-overlay.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    width: 400px;
+    max-width: 90%;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    transform: translateY(-20px);
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay.open .modal-content {
+    transform: translateY(0);
+}
+
+.modal-title {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.25rem;
+    color: #333;
+    text-align: center;
+}
+
+.modal-form-group {
+    margin-bottom: 15px;
+}
+
+.modal-label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    color: #666;
+    font-weight: 500;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+.modal-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.modal-btn-cancel {
+    background-color: #f1f3f5;
+    color: #495057;
+}
+
+.modal-btn-cancel:hover {
+    background-color: #e9ecef;
+}
+
+.modal-btn-save {
+    background-color: #3399FD;
+    color: white;
+}
+
+.modal-btn-save:hover {
+    background-color: #3b82f6;
+}
+
+
+/* --- СТИЛИ ДЛЯ ИНТЕРАКТИВНЫХ ЗВЕЗД (В МОДАЛКЕ) --- */
+.interactive-stars {
+    font-size: 2rem;
+    cursor: pointer;
+    display: flex;
+    gap: 5px;
+}
+
+.interactive-stars .star {
+    color: #e0e0e0;
+    transition: color 0.2s;
+}
+
+.interactive-stars .star.filled {
+    color: #f39c12;
+}

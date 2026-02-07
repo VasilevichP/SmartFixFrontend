@@ -1,368 +1,239 @@
-/* ServiceDetailsClientPage.css */
-.service-details-client-page {
+.client-service-page-container {
     width: 90%;
     margin: auto;
     margin-top: 3em;
     padding: 24px;
+    background-color: #f9fafb;
 }
 
-/* --- Основной макет страницы --- */
-.details-layout {
-    margin-top: 24px;
+.details-page-wrapper {
+    padding: 0 20px;
+    margin-top: 3em;
     display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 40px;
-    align-items: flex-start;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    align-items: start; /* Чтобы колонки не растягивались по высоте */
 }
-.details-image-container {}
-.details-image {
-    width: 100%;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+/* --- ЛЕВАЯ КОЛОНКА (ИНФО) --- */
+.info-card {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    border: 1px solid #eaeaea;
 }
-.details-info-container {}
-.details-category {
-    font-size: 14px;
-    font-weight: 600;
-    color: #3b82f6; /* Синий */
+
+.category-badge {
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #6c757d;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
 }
-.details-title {
-    font-size: 36px;
-    font-weight: 600;
-    color: #111827;
-    margin: 8px 0 16px 0;
+
+.service-title {
+    font-size: 2rem;
+    margin: 0 0 15px 0;
+    color: #2c3e50;
+    line-height: 1.2;
 }
-.details-description {
-    font-size: 16px;
-    color: #4b5563;
+
+.device-tag {
+    display: inline-block;
+    background-color: #e3f2fd;
+    color: #0d47a1;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+}
+
+.rating-badge {
+    color: #f39c12;
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+}
+
+.rating-count {
+    font-weight: normal;
+    color: #888;
+    font-size: 0.9rem;
+    margin-left: 5px;
+}
+
+.divider {
+    border: 0;
+    border-top: 1px solid #eee;
+    margin: 20px 0;
+}
+
+.description-title {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.description-text {
+    color: #555;
     line-height: 1.6;
-    margin-bottom: 24px;
+    margin-bottom: 30px;
+    white-space: pre-line; /* Сохраняет переносы строк */
 }
-.details-meta {
-    display: flex;
-    gap: 24px;
-    padding: 16px;
-    background-color: #f9fafb;
+
+.pricing-block {
+    background-color: #f8f9fa;
+    padding: 20px;
     border-radius: 8px;
-    margin-bottom: 32px;
+    margin-bottom: 25px;
 }
-.meta-item {
+
+.price-row {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 1.1rem;
 }
-.meta-label {
-    font-size: 14px;
-    color: #6b7280;
-    margin-bottom: 4px;
+
+.price-row:last-child {
+    margin-bottom: 0;
 }
-.meta-value {
-    font-size: 18px;
+
+.price-row .label {
+    color: #333;
+}
+
+.price-row .value {
     font-weight: 600;
-    color: #111827;
+    color: #333;
 }
-.meta-value.price {
-    color: #10b981; /* Зеленый */
+
+.price-row .value.price {
+    color: #2c3e50;
+    font-size: 1.4rem;
 }
-.apply-button {
-    padding: 10px 20px;
-    background-color: #3399FD;
-    color: #ffffff;
+
+.apply-button-large {
+    width: 100%;
+    background-color: #007bff;
+    color: white;
     border: none;
+    padding: 15px;
+    font-size: 1.1rem;
+    font-weight: 600;
     border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.2s;
-}
-.apply-button:hover {
-    background-color: #2563eb;
+    transition: background 0.2s;
 }
 
-.reviews-section {
-    margin-top: 48px;
-    padding-top: 32px;
-    border-top: 1px solid #e5e7eb;
+.apply-button-large:hover {
+    background-color: #0056b3;
 }
 
-.reviews-header {
+/* --- ПРАВАЯ КОЛОНКА (ОТЗЫВЫ) --- */
+.reviews-column {
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    border: 1px solid #eaeaea;
+}
+
+.reviews-header-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
 }
 
 .section-title {
-    font-size: 24px;
-    font-weight: 600;
-    color: #111827;
+    font-size: 1.25rem;
     margin: 0;
+    color: #333;
 }
 
 .secondary-button {
-    background-color: #ffffff;
-    color: #374151;
-    border: 1px solid #d1d5db;
-    padding: 10px 20px;
+    background: white;
+    border: 1px solid #007bff;
+    color: #007bff;
+    padding: 6px 12px;
     border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.2s;
+    font-size: 0.9rem;
+    transition: all 0.2s;
 }
+
 .secondary-button:hover {
-    background-color: #f9fafb;
+    background: #e7f1ff;
 }
 
 .reviews-list {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
+    max-height: 600px;
+    overflow-y: auto;
+    padding-right: 5px; /* Чтобы скроллбар не перекрывал контент */
 }
 
-.review-item {
-    background-color: #f9fafb;
-    padding: 16px;
-    border-radius: 8px;
-    border: 1px solid #f3f4f6;
+.review-card {
+    border-bottom: 1px solid #f0f0f0;
+    padding: 15px 0;
 }
 
-.review-item-header {
+.review-card:last-child {
+    border-bottom: none;
+}
+
+.review-card-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
+    margin-bottom: 5px;
 }
 
 .review-author {
+    color: #333;
     font-weight: 600;
-    color: #111827;
-}
-
-.review-rating {
-    font-size: 16px;
-    color: #f59e0b; /* Желтый для звезд */
-}
-
-.review-comment {
-    font-size: 14px;
-    color: #4b5563;
-    line-height: 1.5;
-    margin: 0 0 12px 0;
 }
 
 .review-date {
-    font-size: 12px;
-    color: #9ca3af;
+    font-size: 0.85rem;
+    color: #999;
 }
 
-
-/* --- Стили для модального окна --- */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(17, 24, 39, 0.6);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    overflow-y: auto; /* Добавляем скролл, если форма не влезает */
-    padding: 20px;
-}
-.modal-content {
-    background: #ffffff;
-    border-radius: 8px;
-    padding: 24px;
-    width: 100%;
-    max-width: 600px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-}
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #e5e7eb;
-    padding-bottom: 16px;
-    margin-bottom: 20px;
-}
-.modal-title {
-    font-size: 20px;
-    font-weight: 600;
-    margin: 0;
-    color: #1c1e21;
-}
-.modal-close-button {
-    background: none;
-    border: none;
-    font-size: 28px;
-    line-height: 1;
-    color: #9ca3af;
-    cursor: pointer;
-}
-.modal-body {}
-.application-form {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-.input-group {
-    display: flex;
-    flex-direction: column;
-}
-.form-label {
-    margin-bottom: 6px;
-    font-size: 14px;
-    font-weight: 500;
-    color: #374151;
-}
-.form-input, .form-textarea, .form-file-input {
-    width: 100%;
-    padding: 10px 12px;
-    font-size: 14px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    box-sizing: border-box;
-}
-.form-textarea {
-    resize: vertical;
-}
-.modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-    border-top: 1px solid #e5e7eb;
-    padding-top: 20px;
-    margin-top: 24px;
-}
-.application-form {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-.input-group, .checkbox-group {
-    display: flex;
-    flex-direction: column;
-}
-.form-label {
-    margin-bottom: 6px;
-    font-size: 14px;
-    font-weight: 500;
-    color: #374151;
-}
-.form-input, .form-textarea, .form-file-input {
-    width: 100%;
-    padding: 10px 12px;
-    font-size: 14px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    box-sizing: border-box;
+.review-stars {
+    color: #f39c12;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
 }
 
-.rating-input {
-    font-size: 28px;
-    color: #d1d5db; /* Серые звезды по умолчанию */
+.empty-stars {
+    color: #e0e0e0;
 }
 
-.rating-input span {
-    cursor: pointer;
-    transition: color 0.2s;
-}
-
-/* Эффект при наведении (в реальном приложении это будет управляться через JS/CSS) */
-.rating-input:hover span {
-    color: #f59e0b;
-}
-
-.form-textarea {
-    resize: vertical;
-}
-.modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-    border-top: 1px solid #e5e7eb;
-    padding-top: 20px;
-    margin-top: 24px;
-}
-.download-button {
-    padding: 10px 20px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-}
-.submit-button {
-    background-color: #3399FD;
-    color: #ffffff;
-    border: none;
-}
-.submit-button:hover {
-    background-color: #2563eb;
-}
-.cancel-button {
-    background-color: #ffffff;
-    color: #374151;
-    border: 1px solid #d1d5db;
-}
-
-.success-modal {
-    max-width: 480px; /* Делаем это окно немного компактнее */
-    text-align: center; /* Центрируем весь контент */
-}
-
-.success-icon-container {
-    margin-bottom: 16px;
-}
-
-.success-icon {
-    width: 64px;
-    height: 64px;
-    color: #10b981; /* Зеленый цвет успеха */
-}
-
-.success-title {
-    font-size: 22px;
-    font-weight: 600;
-    color: #111827;
-    margin: 0 0 8px 0;
-}
-
-.success-message {
-    font-size: 16px;
-    color: #4b5563;
-    line-height: 1.6;
+.review-text {
+    font-size: 0.95rem;
+    color: #555;
+    line-height: 1.5;
     margin: 0;
 }
 
-.success-message strong {
-    color: #1f2937;
+.no-reviews {
+    text-align: center;
+    color: #888;
+    padding: 20px 0;
+    font-style: italic;
 }
 
-.centered-footer {
-    justify-content: center; /* Центрируем кнопки */
-    flex-direction: column; /* Располагаем одну под другой */
-    gap: 12px;
-}
 
-.download-button {
-    /* Стилизуем ссылку как основную кнопку */
-    background-color: #3399FD;
-    color: #ffffff;
-    border: none;
-    text-decoration: none; /* Убираем подчеркивание у ссылки */
-    display: inline-block; /* Чтобы padding работал корректно */
-}
-
-.download-button:hover {
-    background-color: #2563eb;
-    color: white;
-}
-
-/* Адаптивность */
+/* Адаптивность для мобильных */
 @media (max-width: 768px) {
-    .details-layout {
-        grid-template-columns: 1fr;
+    .details-page-wrapper {
+        grid-template-columns: 1fr; /* Одна колонка на мобильных */
+    }
+
+    .reviews-column {
+        margin-top: 20px;
     }
 }

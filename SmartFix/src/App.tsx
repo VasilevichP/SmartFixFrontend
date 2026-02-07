@@ -28,7 +28,7 @@ function App() {
                 <Route path="/manager/dictionaries" element={<ManagerDictionariesPage/>}/>
                 <Route path="/manager/statistics" element={<ManagerStatisticsPage/>}/>
                 <Route path="/catalog" element={<ClientCatalogPage/>}/>
-                <Route path="/catalog/details" element={<ClientServiceDetailsPage/>}/>
+                <Route path="/catalog/:id" element={<ClientServiceDetailsPage/>}/>
                 <Route path="/profile" element={<ClientProfilePage/>}/>
                 <Route path="/profile/request_details" element={<ClientRequestDetailsPage/>}/>
             </Routes>

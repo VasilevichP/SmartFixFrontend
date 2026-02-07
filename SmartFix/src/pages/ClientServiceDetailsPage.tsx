@@ -1,275 +1,162 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import ClientHeader from "../components/ClientHeader.tsx";
 import '../styles/ClientServiceDetailsPage.css';
-
-// Определяем структуру данных для услуги
-interface Service {
-    id: number;
-    name: string;
-    category: string;
-    price: number;
-    warranty: number;
-    description: string;
-    imageUrl: string;
-}
-
-interface Review {
-    id: number;
-    clientName: string;
-    rating: number;
-    comment: string;
-    createdAt: string;
-}
-
-// "Заглушка" с данными для примера
-const mockService: Service = {
-    id: 2,
-    name: 'Замена экрана смартфона',
-    category: 'Ремонт смартфонов',
-    price: 4500.00,
-    warranty: 6,
-    description: 'Включает в себя стоимость оригинального дисплейного модуля и работу мастера. Используются только сертифицированные комплектующие. Гарантия на выполненные работы - 6 месяцев. Подходит для моделей iPhone 12-14, Samsung Galaxy S20-S23.',
-    imageUrl: 'https://rms.kufar.by/v1/list_thumbs_2x/adim1/1d9fc6f9-8473-44c4-86aa-7279c165c064.jpg'
-};
-
-const mockReviews: Review[] = [
-    {
-        id: 1,
-        clientName: 'Петрова Анна',
-        rating: 5,
-        comment: 'Все сделали очень быстро и качественно! Экран как новый. Спасибо!',
-        createdAt: '26.10.2025'
-    },
-    {
-        id: 2,
-        clientName: 'Алексеев Дмитрий',
-        rating: 4,
-        comment: 'В целом все хорошо, но пришлось немного подождать. К качеству работы претензий нет.',
-        createdAt: '22.10.2025'
-    },
-];
+import {useNavigate, useParams} from "react-router-dom";
+import {type ServiceDetailsDto, servicesApi} from "../api/servicesApi.ts";
+import {CreateRequestModal} from "../components/CreateRequestModal.tsx";
+import {CreateReviewModal} from "../components/CreateReviewModal.tsx";
 
 export const ClientServiceDetailsPage: React.FC = () => {
-    // --- Состояние для управления видимостью модального окна ---
-    const [isApplicationModalOpen, setApplicationModalOpen] = useState(false);
-    const [isReviewModalOpen, setReviewModalOpen] = useState(false);
-    const [isSuccessModalOpen, setSuccessModalOpen] = useState(false);
+    const {id} = useParams<{ id: string }>();
+    const navigate = useNavigate();
 
-    // --- Функции для открытия и закрытия модального окна ---
-    const handleOpenModal = () => setApplicationModalOpen(true);
+    // --- ДАННЫЕ УСЛУГИ ---
+    const [service, setService] = useState<ServiceDetailsDto | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const handleApplicationSubmit = () => {
-        // Здесь в реальном приложении будет логика отправки данных на сервер
-        // Закрываем форму заявки
-        setApplicationModalOpen(false);
-        // Открываем окно с подтверждением
-        setSuccessModalOpen(true);
+    // --- СОСТОЯНИЯ МОДАЛОК ---
+    const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
+    const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+
+
+    const token = localStorage.getItem("token") || "";
+
+    // Загрузка данных услуги
+    const fetchServiceDetails = async () => {
+        if (!id) return;
+        try {
+            setIsLoading(true);
+            const data = await servicesApi.getServiceById(token, id);
+            setService(data);
+        } catch (error) {
+            console.error("Ошибка загрузки услуги", error);
+            alert("Не удалось загрузить данные об услуге");
+            navigate('/catalog');
+        } finally {
+            setIsLoading(false);
+        }
     };
+
+    useEffect(() => {
+        if (!token) {
+            navigate('/login');
+            return;
+        }
+        fetchServiceDetails();
+    }, [id]);
+
+    if (isLoading) return <div style={{textAlign: 'center', padding: '50px'}}>Загрузка...</div>;
+    if (!service) return <div style={{textAlign: 'center', padding: '50px'}}>Услуга не найдена</div>;
 
     return (
         <div>
             <ClientHeader/>
-            <div className="service-details-client-page">
-                <div className="details-layout">
-                    {/* --- Левая колонка: Изображение --- */}
-                    <div className="details-image-container">
-                        <img src={mockService.imageUrl} alt={mockService.name} className="details-image"/>
-                    </div>
+            <div className="client-service-page-container">
+                <div className="details-page-wrapper">
 
-                    {/* --- Правая колонка: Информация и кнопка --- */}
-                    <div className="details-info-container">
-                        <span className="details-category">{mockService.category}</span>
-                        <h1 className="details-title">{mockService.name}</h1>
-                        <p className="details-description">{mockService.description}</p>
+                    {/* === ЛЕВАЯ КОЛОНКА: ИНФОРМАЦИЯ === */}
+                    <div className="info-column">
+                        <div className="info-card">
+                            <div className="category-badge">{service.categoryName}</div>
 
-                        <div className="details-meta">
-                            <div className="meta-item">
-                                <span className="meta-label">Цена:</span>
-                                <span className="meta-value price">{mockService.price.toFixed(2)} руб.</span>
+                            <h1 className="service-title">{service.name}</h1>
+
+                            <div className="device-tag">
+                                Устройство: <strong>
+                                {service.deviceModelName
+                                    ? `${service.manufacturerName} ${service.deviceModelName}`
+                                    : `${service.deviceTypeName} (Все модели)`}
+                            </strong>
                             </div>
-                            <div className="meta-item">
-                                <span className="meta-label">Срок гарантии:</span>
-                                <span className="meta-value">{mockService.warranty} месяц(ев)</span>
-                            </div>
-                        </div>
 
-                        <button className="apply-button" onClick={handleOpenModal}>
-                            Подать заявку
-                        </button>
-                    </div>
-                </div>
-
-
-                <div className="reviews-section">
-                    <div className="reviews-header">
-                        <h2 className="section-title">Отзывы клиентов ({mockReviews.length})</h2>
-                        <button className="secondary-button" onClick={() => setReviewModalOpen(true)}>
-                            Оставить отзыв
-                        </button>
-                    </div>
-                    <div className="reviews-list">
-                        {mockReviews.map(review => (
-                            <div key={review.id} className="review-item">
-                                <strong className="review-author">{review.clientName}</strong>
-                                <div className="review-header">
-                                    <span
-                                        className="review-rating">{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</span>
-                                    <p>{review.createdAt}</p>
+                            {service.averageRating > 0 && (
+                                <div className="rating-badge">
+                                    ★ {service.averageRating} <span
+                                    className="rating-count">({service.reviews.length} отзывов)</span>
                                 </div>
-                                <p className="review-comment">{review.comment}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
+                            )}
 
-                {/* ========================================================== */}
-                {/* ==================== МОДАЛЬНОЕ ОКНО ====================== */}
-                {/* ========================================================== */}
-                {isApplicationModalOpen && (
-                    <div className="modal-overlay" onClick={() => setApplicationModalOpen(false)}>
-                        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                            <div className="modal-header">
-                                <h2 className="modal-title">Новая заявка: {mockService.name}</h2>
-                                <button className="modal-close-button"
-                                        onClick={() => setApplicationModalOpen(false)}>&times;</button>
-                            </div>
-                            <div className="modal-body">
-                                <form className="application-form">
-                                    {/* --- НОВЫЙ БЛОК: Персональные данные --- */}
-                                    <div className="form-row">
-                                        <div className="input-group">
-                                            <label htmlFor="last-name" className="form-label">* Фамилия</label>
-                                            <input type="text" id="last-name" className="form-input"
-                                                   placeholder="Иванов"/>
-                                        </div>
-                                        <div className="input-group">
-                                            <label htmlFor="first-name" className="form-label">* Имя</label>
-                                            <input type="text" id="first-name" className="form-input"
-                                                   placeholder="Иван"/>
-                                        </div>
-                                    </div>
+                            <hr className="divider"/>
 
-                                    <div className="input-group">
-                                        <label htmlFor="middle-name" className="form-label">Отчество</label>
-                                        <input type="text" id="middle-name" className="form-input"
-                                               placeholder="Иванович"/>
-                                    </div>
+                            <h3 className="description-title">Описание услуги</h3>
+                            <p className="description-text">{service.description || "Описание отсутствует."}</p>
 
-                                    <div className="input-group">
-                                        <label htmlFor="phone" className="form-label">* Контактный телефон</label>
-                                        <input type="tel" id="phone" className="form-input" placeholder="375293334455"/>
-                                    </div>
-
-                                    <hr className="form-divider"/>
-                                    {/* --- Конец нового блока --- */}
-                                    <div className="form-row">
-                                        <div className="input-group">
-                                            <label htmlFor="device-model" className="form-label">* Модель вашего
-                                                устройства</label>
-                                            <input type="text" id="device-model" className="form-input"
-                                                   placeholder="Например, Apple iPhone 14 Pro"/>
-                                        </div>
-                                        <div className="input-group">
-                                            <label htmlFor="serial-number" className="form-label">* Серийный
-                                                номер</label>
-                                            <input type="text" id="serial-number" className="form-input"
-                                                   placeholder="Можно найти на коробке или в настройках"/>
-                                        </div>
-                                    </div>
-                                    <div className="input-group">
-                                        <label htmlFor="problem-description" className="form-label">Опишите
-                                            проблему</label>
-                                        <textarea id="problem-description" className="form-textarea" rows={4}
-                                                  placeholder="Например, трещина в правом верхнем углу..."></textarea>
-                                    </div>
-                                    <div className="input-group">
-                                        <label htmlFor="files" className="form-label">Прикрепите фото/видео
-                                            (необязательно)</label>
-                                        <input type="file" id="files" className="form-file-input" multiple/>
-                                    </div>
-                                </form>
-                            </div>
-                            <div className="modal-footer">
-                                <button className="action-button cancel-button"
-                                        onClick={() => setApplicationModalOpen(false)}>Отмена
-                                </button>
-                                <button className="action-button submit-button"
-                                        onClick={handleApplicationSubmit}>Отправить заявку
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {isReviewModalOpen && (
-                    <div className="modal-overlay" onClick={() => setReviewModalOpen(false)}>
-                        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                            <div className="modal-header">
-                                <h2 className="modal-title">Оставить отзыв об услуге</h2>
-                                <button className="modal-close-button"
-                                        onClick={() => setReviewModalOpen(false)}>&times;</button>
-                            </div>
-                            <div className="modal-body">
-                                <form className="review-form">
-                                    <div className="input-group">
-                                        <label className="form-label">Ваша оценка</label>
-                                        <div className="rating-input">
-                                            {/* В реальном приложении здесь будет интерактивный компонент звезд */}
-                                            <span>☆</span><span>☆</span><span>☆</span><span>☆</span><span>☆</span>
-                                        </div>
-                                    </div>
-                                    <div className="input-group">
-                                        <label htmlFor="review-comment" className="form-label">Комментарий</label>
-                                        <textarea id="review-comment" className="form-textarea" rows={5}
-                                                  placeholder="Поделитесь вашими впечатлениями о качестве сервиса..."></textarea>
-                                    </div>
-                                </form>
-                            </div>
-                            <div className="modal-footer">
-                                <button className="action-button cancel-button"
-                                        onClick={() => setReviewModalOpen(false)}>Отмена
-                                </button>
-                                <button className="action-button submit-button">Отправить отзыв</button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {isSuccessModalOpen && (
-                    <div className="modal-overlay">
-                        <div className="modal-content success-modal" onClick={(e) => e.stopPropagation()}>
-                            <div className="modal-body">
-                                <div className="success-icon-container">
-                                    <svg className="success-icon" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                         viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round"
-                                              d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
+                            <div className="pricing-block">
+                                <div className="price-row">
+                                    <span className="label">Стоимость:</span>
+                                    <span className="value price">{service.price.toFixed(2)} руб.</span>
                                 </div>
-                                <h2 className="success-title">Заявка успешно создана!</h2>
-                                <p className="success-message">
-                                    Вашей заявке присвоен номер <strong>#SF-1026</strong>. <br/>
-                                    Вы можете скачать цифровую квитанцию для сохранения. <br/>
-                                    (Квитанция также будет доступна в личном кабинете)
-                                </p>
+                                <div className="price-row">
+                                    <span className="label">Гарантия:</span>
+                                    <span className="value">{service.warrantyPeriod} мес.</span>
+                                </div>
                             </div>
-                            <div className="modal-footer centered-footer">
-                                {/* --- Кнопка для скачивания --- */}
-                                <a
-                                    href="/path/to/your/receipt.pdf" // Здесь будет реальный путь к файлу
-                                    download="Квитанция_SF-1026.pdf" // Имя файла при скачивании
-                                    className="action-button download-button"
-                                >
-                                    Скачать квитанцию
-                                </a>
-                                <button className="action-button cancel-button"
-                                        onClick={() => setSuccessModalOpen(false)}>Закрыть
-                                </button>
-                            </div>
+
+                            <button className="apply-button-large" onClick={() => setIsRequestModalOpen(true)}>
+                                Оформить заявку
+                            </button>
                         </div>
                     </div>
-                )}
 
+                    {/* === ПРАВАЯ КОЛОНКА: ОТЗЫВЫ === */}
+                    <div className="reviews-column">
+                        <div className="reviews-header-row">
+                            <h2 className="section-title">Отзывы ({service.reviews.length})</h2>
+                            <button className="secondary-button" onClick={() => setIsReviewModalOpen(true)}>
+                                Написать отзыв
+                            </button>
+                        </div>
+
+                        <div className="reviews-list">
+                            {service.reviews.length > 0 ? (
+                                service.reviews.map(review => (
+                                    <div key={review.id} className="review-card">
+                                        <div className="review-card-header">
+                                            <strong className="review-author">{review.clientName}</strong>
+                                            <span className="review-date">
+                                            {new Date(review.createdAt).toLocaleDateString()}
+                                        </span>
+                                        </div>
+                                        <div className="review-stars">
+                                            {'★'.repeat(review.rating)}
+                                            <span className="empty-stars">{'☆'.repeat(5 - review.rating)}</span>
+                                        </div>
+                                        <p className="review-text">{review.comment}</p>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="no-reviews">
+                                    <p>Отзывов пока нет.</p>
+                                    <p>Ваше мнение может стать первым!</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* === МОДАЛЬНЫЕ ОКНА === */}
+
+                    {/* 1. Заявка */}
+                    <CreateRequestModal
+                        isOpen={isRequestModalOpen}
+                        onClose={() => setIsRequestModalOpen(false)}
+                        initialData={{
+                            serviceId: service.id,
+                            serviceName: service.name,
+                            deviceTypeId: service.deviceTypeId,
+                            manufacturerId: service.manufacturerId,
+                            deviceModelId: service.deviceModelId
+                        }}
+                    />
+
+                    {/* 2. Отзыв (Наш новый компонент) */}
+                    <CreateReviewModal
+                        isOpen={isReviewModalOpen}
+                        onClose={() => setIsReviewModalOpen(false)}
+                        serviceId={service.id}
+                        onSuccess={fetchServiceDetails} // Обновляем страницу после успеха
+                    />
+
+                </div>
             </div>
         </div>
     );

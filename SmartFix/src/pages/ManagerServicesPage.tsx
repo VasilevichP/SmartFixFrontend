@@ -50,7 +50,6 @@ export const ManagerServicesPage: React.FC = () => {
             };
 
             const data = await servicesApi.getAllServicesForManager(token, params);
-            console.log(data);
             setServices(data);
         } catch (error) {
             console.log("Не удалось загрузить список услуг", error);
@@ -76,7 +75,7 @@ export const ManagerServicesPage: React.FC = () => {
                 setTypes(types);
                 setManufs(manufs);
             } catch (e) {
-                console.error("Ошибка загрузки справочников", e);
+                console.log("Ошибка загрузки справочников", e);
             }
         };
         loadDictionaries();
@@ -158,6 +157,9 @@ export const ManagerServicesPage: React.FC = () => {
         setSearchQuery("");
         setStatusFilter(undefined);
         setCategoryFilter("all");
+        setTypeFilter("all");
+        setManufFilter("all"); // Сброс бренда
+        setModelFilter("all");
         setSortOrder("0");
     };
 
