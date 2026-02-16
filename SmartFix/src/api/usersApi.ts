@@ -18,4 +18,13 @@ export const usersApi = {
         });
         return response.data;
     },
+    async updateUserProfile(token: string, profile: UserProfile) {
+        const response = await api.put('/Users', profile, {
+            withCredentials: true,
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    },
 };

@@ -122,16 +122,18 @@
     transform: translateY(-4px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
-.card-image {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
-}
+
 .card-content {
     padding: 16px;
     display: flex;
     flex-direction: column;
-    flex-grow: 1; /* Чтобы футер всегда был внизу */
+    justify-content: space-between;
+    flex-grow: 1;
+}
+.card-middle{
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 .card-category {
     font-size: 12px;
@@ -145,6 +147,15 @@
     color: #111827;
     margin: 0 0 8px 0;
 }
+.card-rating{
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 15px;
+    color: #f39c12;
+    font-weight: bold;
+    margin-top:16px
+}
 .card-description {
     font-size: 14px;
     color: #4b5563;
@@ -152,6 +163,27 @@
     margin: 0;
     flex-grow: 1; /* Занимает все доступное место */
 }
+.device-info-container{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.device-info-badge {
+    display: inline-block;
+    background-color: #f0f4f8;
+    color: #4a5568;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border: 1px solid #e2e8f0;
+}
+
+.device-icon {
+    margin-right: 6px;
+}
+
 .card-footer {
     display: flex;
     justify-content: space-between;
@@ -193,9 +225,9 @@
     font-size: 14px;
 }
 .pagination-button.active, .pagination-button:hover {
-    background-color: #3b82f6;
+    background-color: #3399FD;
     color: #ffffff;
-    border-color: #3b82f6;
+    border-color: #3399FD;
 }
 
 .individual-request-banner {
@@ -234,7 +266,7 @@
 
 .banner-button {
     margin-left: auto; /* Прижимает кнопку вправо */
-    background-color: #1976d2;
+    background-color: #3399FD;
     color: white;
     border: none;
     padding: 10px 20px;

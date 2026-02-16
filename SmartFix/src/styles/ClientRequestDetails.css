@@ -4,98 +4,242 @@
     margin-top: 3em;
     padding: 24px;
 }
+.page-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end; /* Выравнивание по низу, чтобы кнопка и заголовок были на одной линии */
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
 
-.page-header {
-    margin-bottom: 24px;
+.header-title-group {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 5px;
 }
 .back-link {
-    display: block;
-    font-size: 14px;
-    font-weight: 500;
-    color: #3b82f6;
+    color: #666;
     text-decoration: none;
-    margin-bottom: 16px;
-}
-.details-title {
-    font-size: 24px;
-    font-weight: 600;
-    color: #111827;
-    margin: 0;
-}
-.details-subtitle {
-    font-size: 16px;
-    color: #6b7280;
-    margin: 4px 0 0 0;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    display: inline-block;
 }
 
-/* --- Основная карточка --- */
-.main-card {
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.06);
-    padding: 0; /* Убираем паддинг, чтобы секции прилегали к краям */
-    overflow: hidden;
+.back-link:hover {
+    color: #007bff;
 }
 
-/* --- НОВЫЙ БЛОК СТАТУСА --- */
-.status-highlight-section {
-    background-color: #f9fafb;
-    padding: 24px;
+.header-title-row {
     display: flex;
-    gap: 24px;
-    border-bottom: 1px solid #e5e7eb;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
 }
+
+.details-title {
+    font-size: 2rem;
+    margin: 0;
+    color: #2c3e50;
+}
+
+.details-subtitle {
+    font-size: 1.1rem;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* Статусы (дублируются из общих, но можно переопределить) */
+.status-badge-large {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* Основная карточка */
+.main-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    overflow: hidden;
+    padding: 0; /* Паддинг внутри блоков */
+}
+
+/* Блок цены и даты */
+.status-highlight-section {
+    background-color: #f8f9fa;
+    padding: 25px 30px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
 .status-block {
     display: flex;
     flex-direction: column;
 }
-.date-value {
-    font-size: 18px;
-    font-weight: 600;
-    color: #111827;
-}
-.status-badge-large {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 6px;
-    font-weight: 500;
-    font-size: 14px;
-}
-/* Цвета статусов (из прошлых примеров) */
-.status-new { background-color: #dbeafe; color: #1e40af; }
-.status-in-progress, .status-diagnostics { background-color: #fef3c7; color: #92400e; }
-.status-waiting { background-color: #fee2e2; color: #991b1b; }
-.status-ready { background-color: #d1fae5; color: #065f46; }
-.status-closed, .status-cancelled { background-color: #e5e7eb; color: #374151; }
 
-/* --- Секция с деталями --- */
-.details-section {
-    padding: 24px;
+.price-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2c3e50;
 }
+
+.date-value {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #333;
+}
+
+/* Сетка контента (Инфо + История) */
+.details-content-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr; /* Левая часть шире */
+    gap: 40px;
+    padding: 30px;
+}
+
+@media (max-width: 768px) {
+    .details-content-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 .section-title {
-    font-size: 18px;
-    font-weight: 600;
-    margin: 0 0 20px 0;
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    color: #333;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
 }
+
+/* Сетка полей */
 .info-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
+    margin-bottom: 20px;
 }
-.info-block {
+
+.info-label {
+    display: block;
+    font-size: 0.85rem;
+    color: #888;
+    margin-bottom: 4px;
+}
+
+.info-value {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #333;
+}
+
+.info-description {
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    line-height: 1.5;
+    color: #555;
+}
+
+/* Фотографии */
+.client-files-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.client-file-item img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    transition: transform 0.2s;
+}
+
+.client-file-item img:hover {
+    transform: scale(1.05);
+    border-color: #007bff;
+}
+
+/* Таймлайн истории */
+.timeline {
+    border-left: 2px solid #e0e0e0;
+    padding-left: 20px;
+    margin-left: 5px;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 25px;
+}
+
+.timeline-item:last-child {
+    margin-bottom: 0;
+}
+
+.timeline-dot {
+    position: absolute;
+    left: -26px;
+    top: 5px;
+    width: 10px;
+    height: 10px;
+    background-color: #007bff;
+    border-radius: 50%;
+    border: 2px solid white; /* Обводка чтобы отделить от линии */
+    box-shadow: 0 0 0 1px #007bff;
+}
+
+.timeline-content {
     display: flex;
     flex-direction: column;
 }
-.info-label {
-    font-size: 12px;
-    font-weight: 500;
-    color: #6b7280;
-    margin-bottom: 4px;
-    text-transform: uppercase;
+
+.timeline-status {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 2px;
 }
-.info-value {
-    font-size: 16px;
-    color: #111827;
+
+.timeline-date {
+    font-size: 0.8rem;
+    color: #999;
+}
+
+/* Футер с кнопками */
+.actions-footer {
+    padding: 20px 30px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #eee;
+    text-align: right;
+}
+
+.download-button {
+    background-color: #fff;
+    color: #333;
+    border: 1px solid #ccc;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.download-button:hover {
+    background-color: #e2e6ea;
+    border-color: #adb5bd;
+}
+
+.loading-state, .error-state {
+    text-align: center;
+    padding: 50px;
+    color: #666;
+    font-size: 1.2rem;
 }
 .full-width {
     grid-column: 1 / -1;
@@ -108,24 +252,33 @@
 }
 
 /* --- Блок действий --- */
-.actions-footer {
-    padding: 16px 24px;
-    border-top: 1px solid #e5e7eb;
-    background-color: #f9fafb;
-}
-.download-button {
-    padding: 10px 20px;
+.download-button-header {
+    background-color: #fff;
+    color: #007bff;
+    border: 1px solid #007bff;
+    padding: 8px 20px;
     border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
     cursor: pointer;
-    border: 1px solid #d1d5db;
-    background-color: #3399FD;
-    color: white;
+    font-size: 14px;
     transition: all 0.2s;
+    height: 40px; /* Фикс высоты */
+    display: flex;
+    align-items: center;
 }
-.download-button:hover {
-    background-color: #2563eb;
+
+.download-button-header:hover {
+    background-color: #e7f1ff;
+}
+
+.download-button-header:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.service-name-highlight {
+    color: #007bff; /* Синий цвет */
+    font-weight: 600;
+    font-size: 1.1rem;
 }
 
 /* --- Адаптивность --- */
@@ -135,5 +288,17 @@
     }
     .status-highlight-section {
         flex-direction: column;
+    }
+}
+
+@media (max-width: 600px) {
+    .page-header-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .download-button-header {
+        width: 100%;
+        justify-content: center;
     }
 }

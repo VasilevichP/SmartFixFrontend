@@ -49,7 +49,7 @@ export interface CreateServiceCommand {
     name: string;
     description?: string;
     price: number;
-    warrantyPeriod: number;
+    warrantyPeriod?: number;
     categoryId: string;
     deviceTypeId: string;
     manufacturerId?: string;
@@ -61,7 +61,7 @@ export interface ServiceDetailsDto {
     name: string;
     description: string;
     price: number;
-    warrantyPeriod: number;
+    warrantyPeriod?: number;
     isAvailable: boolean;
 
     categoryId: string;

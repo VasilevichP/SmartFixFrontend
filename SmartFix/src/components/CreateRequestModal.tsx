@@ -15,6 +15,7 @@ interface CreateRequestModalProps {
     initialData?: {
         serviceId?: string;
         serviceName?: string;
+        price?:number;
         deviceTypeId?: string;
         deviceModelId?: string;
         deviceModelName?: string; // Если модель известна из услуги
@@ -155,7 +156,9 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({isOpen, o
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        if (!contactPhoneNumber) return;
         if (contactPhoneNumber && !isValidPhoneNumber(contactPhoneNumber)) {
+            console.log("invalid");
             setIsLoading(false);
             return;
         }
@@ -176,13 +179,13 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({isOpen, o
         }
 
         setIsLoading(true);
-        if (!contactPhoneNumber) return;
         try {
             await requestsApi.createRequest(token, {
                 deviceTypeId,
                 deviceModelId: isManualMode ? null : deviceModelId,
                 deviceModelName: finalModelName,
                 serviceId: initialData?.serviceId || null,
+                price: initialData?.price || null,
                 description,
                 deviceSerialNumber: serialNumber,
                 contactEmail,

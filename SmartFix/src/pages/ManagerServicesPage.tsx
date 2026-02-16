@@ -294,47 +294,49 @@ export const ManagerServicesPage: React.FC = () => {
                             {isLoading ? (
                                 <p style={{padding: '40px', textAlign: 'center', color: '#666'}}>Загрузка...</p>
                             ) : (
-                                <table className="table">
-                                    <thead>
-                                    <tr>
-                                        <th>Название услуги</th>
-                                        <th>Категория</th>
-                                        <th>Тип устройства</th>
-                                        <th>Производитель</th>
-                                        <th>Модель</th>
-                                        <th>Цена (руб.)</th>
-                                        <th>Статус</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {services.length > 0 ? (
-                                        services.map((service) => (
-                                            <tr key={service.id}
-                                                onClick={() => navigate(`/manager/services/${service.id}`)}>
-                                                <td>{service.name}</td>
-                                                <td>{service.categoryName ? service.categoryName : 'Без категории'}</td>
-                                                <td>{service.deviceTypeName}</td>
-                                                <td>{service.manufacturerName ? service.manufacturerName : 'Любой производитель'}</td>
-                                                <td>{service.deviceModelName ? service.deviceModelName : 'Любая модель'}</td>
-                                                <td>{service.price}</td>
-                                                <td>
+                                <div className="table-scroll-wrapper">
+                                    <table className="table">
+                                        <thead>
+                                        <tr>
+                                            <th>Название услуги</th>
+                                            <th>Категория</th>
+                                            <th>Тип устройства</th>
+                                            <th>Производитель</th>
+                                            <th>Модель</th>
+                                            <th>Цена (руб.)</th>
+                                            <th>Статус</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {services.length > 0 ? (
+                                            services.map((service) => (
+                                                <tr key={service.id}
+                                                    onClick={() => navigate(`/manager/services/${service.id}`)}>
+                                                    <td>{service.name}</td>
+                                                    <td>{service.categoryName ? service.categoryName : 'Без категории'}</td>
+                                                    <td>{service.deviceTypeName}</td>
+                                                    <td>{service.manufacturerName ? service.manufacturerName : 'Любой производитель'}</td>
+                                                    <td>{service.deviceModelName ? service.deviceModelName : 'Любая модель'}</td>
+                                                    <td>{service.price}</td>
+                                                    <td>
                                                 <span
                                                     className={`status-badge ${getAvailabilityClassName(service.isAvailable)}`}>
                                                     {service.isAvailable ? 'Доступна' : 'Скрыта'}
                                                 </span>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan={6}
+                                                    style={{textAlign: 'center', padding: '30px', color: '#888'}}>
+                                                    По вашему запросу ничего не найдено
                                                 </td>
                                             </tr>
-                                        ))
-                                    ) : (
-                                        <tr>
-                                            <td colSpan={6}
-                                                style={{textAlign: 'center', padding: '30px', color: '#888'}}>
-                                                По вашему запросу ничего не найдено
-                                            </td>
-                                        </tr>
-                                    )}
-                                    </tbody>
-                                </table>
+                                        )}
+                                        </tbody>
+                                    </table>
+                                </div>
                             )}
                         </div>
                     </main>

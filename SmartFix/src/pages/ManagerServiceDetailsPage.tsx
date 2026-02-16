@@ -74,8 +74,8 @@ export const ManagersServiceDetailsPage: React.FC = () => {
                 setFormData({
                     name: serviceData.name,
                     description: serviceData.description || '',
-                    price: serviceData.price.toString(),
-                    warrantyPeriod: serviceData.warrantyPeriod.toString(),
+                    price: serviceData.price,
+                    warrantyPeriod: serviceData.warrantyPeriod,
                     isAvailable: serviceData.isAvailable,
                     categoryId: serviceData.categoryId,
                     deviceTypeId: serviceData.deviceTypeId,
@@ -255,12 +255,12 @@ export const ManagersServiceDetailsPage: React.FC = () => {
                                 <div className="input-group">
                                     <label htmlFor="price" className="form-label">Цена (руб.)</label>
                                     <input type="number" id="price" className="form-input" value={formData.price}
-                                           onChange={handleChange} step="0.01" required/>
+                                           onChange={handleChange} step="0.01" required={true}/>
                                 </div>
                                 <div className="input-group">
                                     <label htmlFor="warrantyPeriod" className="form-label">Гарантия (мес.)</label>
                                     <input type="number" id="warrantyPeriod" className="form-input"
-                                           value={formData.warrantyPeriod} onChange={handleChange} required/>
+                                           value={formData.warrantyPeriod} onChange={handleChange}/>
                                 </div>
                             </div>
 

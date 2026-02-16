@@ -49,6 +49,34 @@
     font-size: 0.9rem;
     margin-bottom: 15px;
 }
+.device-specs-container {
+    display: flex;
+    gap: 20px;
+    background-color: #f8f9fa;
+    padding: 12px 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #eee;
+    flex-wrap: wrap;
+}
+
+.spec-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.spec-label {
+    font-size: 0.75rem;
+    color: #888;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+
+.spec-value {
+    font-size: 0.95rem;
+    color: #333;
+    font-weight: 500;
+}
 
 .rating-badge {
     color: #f39c12;
@@ -76,11 +104,39 @@
     color: #333;
 }
 
+.card-description {
+    font-size: 0.9rem;
+    color: #555;
+    line-height: 1.4;
+    margin-bottom: 15px;
+    cursor: pointer; /* Показываем, что можно кликнуть */
+    transition: color 0.2s;
+}
+
+.card-description:hover {
+    color: #333;
+}
+
+/* Класс для обрезки текста */
+.card-description.clamped {
+    display: -webkit-box;
+    -webkit-line-clamp: 4; /* Ограничение в 4 строки */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    /* Многоточие добавляется браузером автоматически */
+}
+
+/* Класс для полного текста */
+.card-description.expanded {
+    display: block;
+    /* Можно добавить max-height и скролл, если текст ОЧЕНЬ длинный */
+}
+
 .description-text {
     color: #555;
     line-height: 1.6;
     margin-bottom: 30px;
-    white-space: pre-line; /* Сохраняет переносы строк */
+    white-space: pre-line;
 }
 
 .pricing-block {
@@ -94,7 +150,7 @@
     display: flex;
     justify-content: space-between;
     margin-bottom: 10px;
-    font-size: 1.1rem;
+    font-size: 15px;
 }
 
 .price-row:last-child {
@@ -112,12 +168,12 @@
 
 .price-row .value.price {
     color: #2c3e50;
-    font-size: 1.4rem;
+    font-size: 1.3rem;
 }
 
 .apply-button-large {
     width: 100%;
-    background-color: #007bff;
+    background-color: #3399FD;
     color: white;
     border: none;
     padding: 15px;
@@ -129,7 +185,7 @@
 }
 
 .apply-button-large:hover {
-    background-color: #0056b3;
+    background-color: #3b82f6;
 }
 
 /* --- ПРАВАЯ КОЛОНКА (ОТЗЫВЫ) --- */

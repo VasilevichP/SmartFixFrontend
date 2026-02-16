@@ -73,9 +73,17 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #ffffff; /* Цвет иконки по умолчанию */
-    transition: color 0.2s;
+    color: #ffffff;
     text-decoration: none;
+    border-bottom: 1px solid transparent;
+    padding-bottom: 1px; /* Небольшой отступ от иконки до линии */
+
+    transition: all 0.2s; /* Анимируем и цвет, и границу */
+}
+
+.profile-link:hover {
+    color: #ffffff; /* Принудительно оставляем белый цвет (перекрываем синий) */
+    border-bottom-color: #ffffff; /* Делаем нижнюю границу белой */
 }
 
 .profile-icon {

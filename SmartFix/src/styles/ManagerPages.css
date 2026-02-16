@@ -166,20 +166,41 @@
     background-color: #0056b3;
 }
 
-/* Стили таблицы (можно оставить старые, немного обновив контейнер) */
 .table-card {
     background: white;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    overflow: hidden; /* Чтобы углы таблицы не вылезали */
+    overflow: hidden;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 215px);
 }
+
+/* Новая обертка непосредственно вокруг <table> */
+.table-scroll-wrapper {
+    overflow-y: auto; /* Вертикальный скролл */
+    overflow-x: auto; /* Горизонтальный скролл (если колонок много) */
+    flex-grow: 1;     /* Растягивается на всю доступную высоту карточки */
+}
+
 
 .table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.table th {
+.table-with-scroll{
+    height: 470px;
+    overflow-x: auto;
+    overflow-y: scroll;
+}
+
+.table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+
     background-color: #f8f9fa;
     color: #6c757d;
     font-weight: 600;

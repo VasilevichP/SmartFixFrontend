@@ -107,13 +107,6 @@ export const ManagerCreateServicePage: React.FC = () => {
         setError("");
         setIsLoading(true);
 
-        // Простая валидация
-        if (!formData.name || !formData.categoryId || !formData.price || !formData.warrantyPeriod) {
-            setError("Пожалуйста, заполните все обязательные поля");
-            setIsLoading(false);
-            return;
-        }
-
         try {
             // Формируем объект для отправки (DTO)
             const command: CreateServiceCommand = {
@@ -251,7 +244,7 @@ export const ManagerCreateServicePage: React.FC = () => {
                             <div className="input-group">
                                 <label htmlFor="warrantyPeriod" className="form-label">Срок гарантии (месяцы)</label>
                                 <input type="number" id="warrantyPeriod" className="form-input"
-                                       required={true} placeholder="Срок гарантии"
+                                       placeholder="Срок гарантии"
                                        value={formData.warrantyPeriod} onChange={handleChange}/>
                             </div>
                             <div className="input-group full-width">

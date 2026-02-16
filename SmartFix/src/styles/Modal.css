@@ -19,15 +19,40 @@
     visibility: visible;
 }
 
+.modal-header, .modal-actions {
+    flex-shrink: 0;
+}
+
+.request-form, .modal-body {
+    overflow-y: auto; /* Вертикальный скролл при переполнении */
+    padding-right: 5px; /* Отступ для скроллбара */
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+/* Стилизация скроллбара (опционально, для красоты) */
+.request-form::-webkit-scrollbar {
+    width: 6px;
+}
+.request-form::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 3px;
+}
+
 .modal-content {
     background: white;
     padding: 25px;
     border-radius: 12px;
     width: 400px;
-    max-width: 90%;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     transform: translateY(-20px);
     transition: transform 0.3s ease;
+
+    max-width: 95%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column; /* Выстраиваем элементы в колонку */
+    position: relative;
 }
 
 .modal-overlay.open .modal-content {

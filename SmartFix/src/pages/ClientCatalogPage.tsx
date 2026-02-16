@@ -257,31 +257,30 @@ export const ClientCatalogPage: React.FC = () => {
                                          onClick={() => navigate(`/catalog/${service.id}`)}>
 
                                         <div className="card-content">
-                                            <span className="card-category">{service.categoryName}</span>
+                                            <div>
+                                                <span className="card-category">{service.categoryName}</span>
 
-                                            <h3 className="card-title">{service.name}</h3>
-
-                                            {/* ОТОБРАЖЕНИЕ РЕЙТИНГА */}
-                                            {service.averageRating > 0 && (
-                                                <div style={{
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: '4px',
-                                                    fontSize: '0.9rem',
-                                                    color: '#f39c12',
-                                                    fontWeight: 'bold'
-                                                }}>
-                                                    <span>★</span>
-                                                    <span>{service.averageRating}</span>
+                                                <h3 className="card-title">{service.name}</h3>
+                                            </div>
+                                            <div className="card-middle">
+                                                <div className="device-info-container">
+                                                    <div className="device-info-badge">
+                                                        Устройство: {service.deviceTypeName}
+                                                    </div>
+                                                    <div className="device-info-badge">
+                                                        Бренд: {service.manufacturerName ? service.manufacturerName : 'Любой'}
+                                                    </div>
+                                                    <div className="device-info-badge">
+                                                        Модель: {service.deviceModelName ? service.deviceModelName : 'Любая'}
+                                                    </div>
                                                 </div>
-                                            )}
-                                            {/* Отображаем, для кого услуга */}
-                                            <p className="card-device-info">
-                                                {service.deviceModelName
-                                                    ? `${service.manufacturerName} ${service.deviceModelName}`
-                                                    : `${service.deviceTypeName} (Все модели)`}
-                                            </p>
-
+                                                {service.averageRating > 0 && (
+                                                    <div className="card-rating">
+                                                        <span>★</span>
+                                                        <span>{service.averageRating}</span>
+                                                    </div>
+                                                )}
+                                            </div>
                                             <div className="card-footer">
                                                 <span className="card-price">{service.price} руб.</span>
                                             </div>

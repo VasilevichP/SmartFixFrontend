@@ -59,7 +59,9 @@ export const ManagerRequestsPage: React.FC = () => {
     const [showFilters, setShowFilters] = useState(true);
 
     // --- ФИЛЬТРЫ ---
-    const [searchQuery, setSearchQuery] = useState("");
+    const [client, setClient] = useState("");
+    const [device, setDevice] = useState("");
+    const [service, setService] = useState("");
     const [statusFilter, setStatusFilter] = useState("all"); // "all" или число (0,1,2...)
     const [sortOrder, setSortOrder] = useState("0"); // 0=Новые, 1=Старые
 
@@ -74,7 +76,9 @@ export const ManagerRequestsPage: React.FC = () => {
         try {
             setIsLoading(true);
             const data = await requestsApi.getAllRequestsForManager(token, {
-                searchTerm: searchQuery,
+                client: client,
+                device: device,
+                service: service,
                 status: statusFilter !== "all" ? parseInt(statusFilter) : undefined,
                 sortOrder: sortOrder
             });
@@ -92,7 +96,7 @@ export const ManagerRequestsPage: React.FC = () => {
             fetchRequests();
         }, 500);
         return () => clearTimeout(timer);
-    }, [searchQuery]);
+    }, [client, device, service]);
 
     // Обновление при смене фильтров
     useEffect(() => {
@@ -103,7 +107,7 @@ export const ManagerRequestsPage: React.FC = () => {
     // Сброс фильтров
     const handleReset = (e: React.MouseEvent) => {
         e.preventDefault();
-        setSearchQuery("");
+        setClient("");
         setStatusFilter("all");
         setSortOrder("0");
     };
@@ -124,13 +128,33 @@ export const ManagerRequestsPage: React.FC = () => {
 
                             {/* Поиск */}
                             <div className="filter-group">
-                                <label className="filter-label">Поиск</label>
+                                <label className="filter-label">Клиент</label>
                                 <input
                                     type="text"
                                     className="search-input"
-                                    placeholder="Клиент, устройство, услуга..."
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    placeholder="Введите ФИО..."
+                                    value={client}
+                                    onChange={(e) => setClient(e.target.value)}
+                                />
+                            </div>
+                            <div className="filter-group">
+                                <label className="filter-label">Устройство</label>
+                                <input
+                                    type="text"
+                                    className="search-input"
+                                    placeholder="Введите название..."
+                                    value={device}
+                                    onChange={(e) => setDevice(e.target.value)}
+                                />
+                            </div>
+                            <div className="filter-group">
+                                <label className="filter-label">Услуга</label>
+                                <input
+                                    type="text"
+                                    className="search-input"
+                                    placeholder="Введите название..."
+                                    value={service}
+                                    onChange={(e) => setService(e.target.value)}
                                 />
                             </div>
 
@@ -188,47 +212,49 @@ export const ManagerRequestsPage: React.FC = () => {
                             {isLoading ? (
                                 <p style={{padding: '40px', textAlign: 'center', color: '#666'}}>Загрузка...</p>
                             ) : (
-                                <table className="table">
-                                    <thead>
-                                    <tr>
-                                        <th>Клиент</th>
-                                        <th>Услуга / Устройство</th>
-                                        <th>Дата</th>
-                                        <th>Исполнитель</th>
-                                        <th>Статус</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {requests.length > 0 ? (
-                                        requests.map((request) => (
-                                            <tr key={request.id}
-                                                onClick={() => navigate(`/manager/requests/${request.id}`)}>
-                                                <td style={{fontWeight: 500}}>{request.clientName}</td>
-                                                <td>
-                                                    <div>{request.serviceName}</div>
-                                                    <div style={{fontSize: '0.85em', color: '#888'}}>
-                                                        {request.deviceModelName || "Устройство не указано"}
-                                                    </div>
-                                                </td>
-                                                <td>{new Date(request.createdAt).toLocaleDateString()}</td>
-                                                <td>{request.specialistName}</td>
-                                                <td>
+                                <div className="table-scroll-wrapper">
+                                    <table className="table">
+                                        <thead>
+                                        <tr>
+                                            <th>Клиент</th>
+                                            <th>Услуга / Устройство</th>
+                                            <th>Дата</th>
+                                            <th>Исполнитель</th>
+                                            <th>Статус</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {requests.length > 0 ? (
+                                            requests.map((request) => (
+                                                <tr key={request.id}
+                                                    onClick={() => navigate(`/manager/requests/${request.id}`)}>
+                                                    <td style={{fontWeight: 500}}>{request.clientName}</td>
+                                                    <td>
+                                                        <div>{request.serviceName}</div>
+                                                        <div style={{fontSize: '0.85em', color: '#888'}}>
+                                                            {request.deviceModelName || "Устройство не указано"}
+                                                        </div>
+                                                    </td>
+                                                    <td>{new Date(request.createdAt).toLocaleDateString()}</td>
+                                                    <td>{request.specialistName}</td>
+                                                    <td>
                                                 <span className={`status-badge ${getStatusClassName(request.status)}`}>
                                                     {getStatusName(request.status)}
                                                 </span>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan={5}
+                                                    style={{textAlign: 'center', padding: '30px', color: '#888'}}>
+                                                    Заявок не найдено
                                                 </td>
                                             </tr>
-                                        ))
-                                    ) : (
-                                        <tr>
-                                            <td colSpan={5}
-                                                style={{textAlign: 'center', padding: '30px', color: '#888'}}>
-                                                Заявок не найдено
-                                            </td>
-                                        </tr>
-                                    )}
-                                    </tbody>
-                                </table>
+                                        )}
+                                        </tbody>
+                                    </table>
+                                </div>
                             )}
                         </div>
                     </main>

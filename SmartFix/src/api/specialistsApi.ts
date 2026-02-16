@@ -11,10 +11,25 @@ export interface CreateSpecialist {
 export interface DeleteSpecialist {
     id: string;
 }
+
+export interface SpecialistWithLoad {
+    id: string;
+    name: string;
+    activeRequestsCount: number; // <-- Количество активных заявок
+}
 export const specialistsApi = {
 
     async getAllSpecialists(token: string) {
         const response = await api.get('/Specialists',  {
+            withCredentials: true,
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data;
+    },
+    async getAllSpecialistsWithLoad(token: string) {
+        const response = await api.get('/Specialists/with_load',  {
             withCredentials: true,
             headers: {
                 Authorization: `Bearer ${token}`,

@@ -5,6 +5,7 @@ import {useNavigate, useParams} from "react-router-dom";
 import {type ServiceDetailsDto, servicesApi} from "../api/servicesApi.ts";
 import {CreateRequestModal} from "../components/CreateRequestModal.tsx";
 import {CreateReviewModal} from "../components/CreateReviewModal.tsx";
+import {ExpandableDescription} from "../components/expandableDescription.tsx";
 
 export const ClientServiceDetailsPage: React.FC = () => {
     const {id} = useParams<{ id: string }>();
@@ -61,12 +62,21 @@ export const ClientServiceDetailsPage: React.FC = () => {
 
                             <h1 className="service-title">{service.name}</h1>
 
-                            <div className="device-tag">
-                                Устройство: <strong>
-                                {service.deviceModelName
-                                    ? `${service.manufacturerName} ${service.deviceModelName}`
-                                    : `${service.deviceTypeName} (Все модели)`}
-                            </strong>
+                            <div className="device-specs-container">
+                                <div className="spec-item">
+                                    <span className="spec-label">Тип:</span>
+                                    <span className="spec-value">{service.deviceTypeName}</span>
+                                </div>
+                                <div className="spec-item">
+                                    <span className="spec-label">Бренд:</span>
+                                    <span className="spec-value">{service.manufacturerName || "Любой"}</span>
+                                </div>
+                                <div className="spec-item">
+                                    <span className="spec-label">Модель:</span>
+                                    <span className="spec-value" style={{fontWeight: 'bold', color: '#007bff'}}>
+                {service.deviceModelName || "Все модели"}
+            </span>
+                                </div>
                             </div>
 
                             {service.averageRating > 0 && (
@@ -78,8 +88,7 @@ export const ClientServiceDetailsPage: React.FC = () => {
 
                             <hr className="divider"/>
 
-                            <h3 className="description-title">Описание услуги</h3>
-                            <p className="description-text">{service.description || "Описание отсутствует."}</p>
+                            <ExpandableDescription text={service.description || ""}/>
 
                             <div className="pricing-block">
                                 <div className="price-row">
@@ -142,6 +151,7 @@ export const ClientServiceDetailsPage: React.FC = () => {
                         initialData={{
                             serviceId: service.id,
                             serviceName: service.name,
+                            price: service.price,
                             deviceTypeId: service.deviceTypeId,
                             manufacturerId: service.manufacturerId,
                             deviceModelId: service.deviceModelId

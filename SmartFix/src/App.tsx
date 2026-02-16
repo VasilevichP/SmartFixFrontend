@@ -21,7 +21,7 @@ function App() {
                 <Route path="/" element={<LoginPage/>}/>
                 <Route path="/register" element={<RegisterPage/>}/>
                 <Route path="/manager/requests" element={<ManagerRequestsPage/>}/>
-                <Route path="/manager/requests/details" element={<ManagerRequestDetailsPage/>}/>
+                <Route path="/manager/requests/:id" element={<ManagerRequestDetailsPage/>}/>
                 <Route path="/manager/services" element={<ManagerServicesPage/>}/>
                 <Route path="/manager/services/create" element={<ManagerCreateServicePage/>}/>
                 <Route path="/manager/services/:id" element={<ManagersServiceDetailsPage/>}/>
@@ -30,7 +30,7 @@ function App() {
                 <Route path="/catalog" element={<ClientCatalogPage/>}/>
                 <Route path="/catalog/:id" element={<ClientServiceDetailsPage/>}/>
                 <Route path="/profile" element={<ClientProfilePage/>}/>
-                <Route path="/profile/request_details" element={<ClientRequestDetailsPage/>}/>
+                <Route path="/profile/requests/:id" element={<ClientRequestDetailsPage/>}/>
             </Routes>
         </BrowserRouter>
     );

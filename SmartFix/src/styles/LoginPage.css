@@ -8,7 +8,6 @@
     Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-/* Обертка для самой формы, задает ей размеры и тени */
 .login-form-wrapper {
     background-color: #ffffff;
     padding: 40px;
@@ -20,7 +19,7 @@
 .register-wrapper {
     width: 50%;
 }
-/* Стили для заголовка */
+
 .login-title {
     font-size: 28px;
     font-weight: 600;
@@ -28,14 +27,12 @@
     margin-bottom: 8px;
 }
 
-/* Стили для подзаголовка */
 .login-subtitle {
     font-size: 16px;
     color: #4b4f56;
     margin-bottom: 24px;
 }
 
-/* Форма */
 .login-form {
     display: flex;
     flex-direction: column;
