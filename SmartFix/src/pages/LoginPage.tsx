@@ -7,6 +7,7 @@ export const LoginPage = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -16,20 +17,23 @@ export const LoginPage = () => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError("");
+        setIsLoading(true);
         const credentials = {email: email, password: password};
         try {
             const response = await authApi.login(credentials);
             localStorage.setItem('token', response.token);
             const payload = JSON.parse(atob(response.token.split('.')[1]));
             const role = payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]
-            if (role =='Manager') {
+            if (role == 'Manager') {
                 navigate('/manager/requests');
-            } else if (role =='Client') {
+            } else if (role == 'Client') {
                 navigate('/catalog');
             }
-        } catch (error:any) {
+        } catch (error: any) {
             console.log(error);
-            setError(error.response.data);
+            setError(error.message);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -68,9 +72,11 @@ export const LoginPage = () => {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}/>
                     </div>
-                    <p className="error-text">{error}</p>
+                    {error &&
+                        <p className="error-text">{error}</p>
+                    }
                     <button type="submit" className="login-button">
-                        Войти
+                        {isLoading?'Подождите...': 'Войти'}
                     </button>
                 </form>
                 <div className="login-footer">

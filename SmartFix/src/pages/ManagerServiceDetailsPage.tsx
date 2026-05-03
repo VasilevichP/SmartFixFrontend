@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {useParams, useNavigate} from 'react-router-dom';
+import {useParams, useNavigate, Link} from 'react-router-dom';
 import ManagerHeader from "../components/ManagerHeader.tsx";
 import '../styles/ServiceDetailsPage.css';
 import {
@@ -11,16 +11,12 @@ import {categoriesApi, type Category} from "../api/categoriesApi.ts";
 import {type DeviceType, deviceTypesApi} from "../api/deviceTypesApi.ts";
 import {type Manufacturer, manufacturersApi} from "../api/manufacturersApi.ts";
 import {type DeviceModel, deviceModelsApi} from "../api/deviceModelsApi.ts";
-import type {ReviewDto} from "../api/reviewsApi.ts";
+import {useApi} from "../hooks/useApi.ts";
 
 
 export const ManagersServiceDetailsPage: React.FC = () => {
     const {id} = useParams<{ id: string }>();
     const navigate = useNavigate();
-
-    // --- Состояние данных ---
-    // const [service, setService] = useState<ServiceDetailsDto | null>(null);
-    const [reviews, setReviews] = useState<ReviewDto[]>([]);
 
     // --- Состояние формы ---
     const [formData, setFormData] = useState({
@@ -41,67 +37,45 @@ export const ManagersServiceDetailsPage: React.FC = () => {
     const [manufacturers, setManufacturers] = useState<Manufacturer[]>([]);
     const [models, setModels] = useState<DeviceModel[]>([]);
 
-    const [token, setToken] = useState('');
-    const [isLoading, setIsLoading] = useState(true);
+    const token = localStorage.getItem('token') || '';
+
+    const [updateService, {isLoading: isServiceUpdated}] = useApi(servicesApi.updateService);
+    const [deleteService] = useApi(servicesApi.deleteService);
+
+    const loadDictionariesAndService = async () => {
+        if (!id) return;
+        const [cats, types, manufs, serviceData] = await Promise.all([
+            categoriesApi.getAllServiceCategories(token),
+            deviceTypesApi.getAllDeviceTypes(token),
+            manufacturersApi.getAllManufacturers(token),
+            servicesApi.getServiceById(token, id)
+        ]);
+
+        setCategories(cats);
+        setDeviceTypes(types);
+        setManufacturers(manufs);
+        setFormData(serviceData);
+
+        if (serviceData.deviceTypeId) {
+            const modelsData = await deviceModelsApi.getDeviceModelsByTypeAndManufacturer(
+                token,
+                serviceData.deviceTypeId,
+                serviceData.manufacturerId || undefined
+            );
+            setModels(modelsData);
+        }
+    };
+
+    const [loadData, {isLoading}] = useApi(loadDictionariesAndService, false);
 
     // 1. ЗАГРУЗКА ВСЕХ ДАННЫХ
     useEffect(() => {
-        const token = localStorage.getItem('token');
         if (!token) {
             navigate('/');
             return;
         }
-        setToken(token);
-        const loadData = async () => {
-            if (!id) return;
-            setIsLoading(true);
-            try {
-                // Грузим параллельно справочники и саму услугу
-                const [cats, types, manufs, serviceData] = await Promise.all([
-                    categoriesApi.getAllServiceCategories(token),
-                    deviceTypesApi.getAllDeviceTypes(token),
-                    manufacturersApi.getAllManufacturers(token),
-                    servicesApi.getServiceById(token, id)
-                ]);
+        if (!id) return;
 
-                setCategories(cats);
-                setDeviceTypes(types);
-                setManufacturers(manufs);
-                // setService(serviceData);
-                setReviews(serviceData.reviews);
-
-                // Заполняем форму данными с бэка
-                setFormData({
-                    name: serviceData.name,
-                    description: serviceData.description || '',
-                    price: serviceData.price,
-                    warrantyPeriod: serviceData.warrantyPeriod,
-                    isAvailable: serviceData.isAvailable,
-                    categoryId: serviceData.categoryId,
-                    deviceTypeId: serviceData.deviceTypeId,
-                    manufacturerId: serviceData.manufacturerId || '',
-                    deviceModelId: serviceData.deviceModelId || ''
-                });
-
-
-                if (serviceData.deviceTypeId) {
-                    const modelsData = await deviceModelsApi.getDeviceModelsByTypeAndManufacturer(
-                        token,
-                        serviceData.deviceTypeId,
-                        serviceData.manufacturerId || undefined
-                    );
-                    setModels(modelsData);
-                }
-
-            } catch (error) {
-                console.log("Ошибка загрузки данных", error);
-                alert("Не удалось загрузить услугу");
-                navigate('/manager/services');
-            } finally {
-                console.log("fd", formData)
-                setIsLoading(false);
-            }
-        };
         loadData();
     }, [id, navigate]);
 
@@ -153,43 +127,32 @@ export const ManagersServiceDetailsPage: React.FC = () => {
         e.preventDefault();
         if (!id) return;
 
-        try {
-            const command: UpdateServiceCommand = {
-                id: id,
-                name: formData.name,
-                description: formData.description,
-                price: parseFloat(formData.price),
-                warrantyPeriod: parseInt(formData.warrantyPeriod),
-                isAvailable: formData.isAvailable,
-                categoryId: formData.categoryId,
-                deviceTypeId: formData.deviceTypeId,
-                manufacturerId: formData.manufacturerId || undefined,
-                deviceModelId: formData.deviceModelId || undefined
-            };
+        const command: UpdateServiceCommand = {
+            id: id,
+            name: formData.name,
+            description: formData.description,
+            price: parseFloat(formData.price),
+            warrantyPeriod: parseInt(formData.warrantyPeriod),
+            isAvailable: formData.isAvailable,
+            categoryId: formData.categoryId,
+            deviceTypeId: formData.deviceTypeId,
+            manufacturerId: formData.manufacturerId || undefined,
+            deviceModelId: formData.deviceModelId || undefined
+        };
 
-            await servicesApi.updateService(token, command);
-            alert("Изменения сохранены!");
-        } catch (error) {
-            console.error(error);
-            alert("Ошибка при сохранении");
-        }
+        await updateService(token, command);
+
     };
 
     // --- УДАЛЕНИЕ УСЛУГИ ---
     const handleDeleteService = async () => {
         if (!id) return;
         if (window.confirm("Вы уверены, что хотите удалить эту услугу? Это действие нельзя отменить.")) {
-            try {
-                const command: DeleteServiceCommand = {
-                    id: id
-                }
-                await servicesApi.deleteService(token, command);
-                alert("Услуга удалена");
-                navigate('/manager/services');
-            } catch (error: any) {
-                const msg = error.response?.data?.title || "Ошибка удаления (возможно, есть активные заявки)";
-                alert(msg);
+
+            const command: DeleteServiceCommand = {
+                id: id
             }
+            deleteService(token, command)
         }
     };
 
@@ -199,8 +162,9 @@ export const ManagersServiceDetailsPage: React.FC = () => {
         <div>
             <ManagerHeader/>
             <div className="details-page-container">
-                <div className="page-header">
-                    <h1 className="details-title">Редактирование услуги</h1>
+                <div className="service-details-page-header">
+                    <Link to="/manager/services" className="back-link">&larr; К списку услуг</Link>
+                    <h1 className="service-details-title">{formData.name}</h1>
                 </div>
 
                 <div className="form-container card">
@@ -282,34 +246,11 @@ export const ManagersServiceDetailsPage: React.FC = () => {
                             <button type="button" className="action-button delete-button"
                                     onClick={handleDeleteService}>Удалить услугу
                             </button>
-                            <button type="submit" className="action-button save-button">Сохранить</button>
+                            <button type="submit" className="action-button save-button">{isServiceUpdated?'Идет сохранение...':'Сохранить'}</button>
                         </div>
                     </form>
                 </div>
 
-                {/* Блок Отзывов */}
-                <div className="reviews-container card">
-                    <h2 className="card-title">Отзывы клиентов ({reviews.length})</h2>
-                    <div className="reviews-list">
-                        {reviews.length > 0 ? (
-                            reviews.map(review => (
-                                <div key={review.id} className="review-item">
-                                    <div style={{display: 'flex', justifyContent: 'space-between'}}>
-                                        <strong className="review-author">{review.clientName}</strong>
-                                    </div>
-                                    <div className="review-header">
-                                        <span
-                                            className="review-rating">{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</span>
-                                        <p>{new Date(review.createdAt).toLocaleDateString()}</p>
-                                    </div>
-                                    <p className="review-comment">{review.comment}</p>
-                                </div>
-                            ))
-                        ) : (
-                            <p style={{color: '#888', fontStyle: 'italic'}}>Отзывов пока нет</p>
-                        )}
-                    </div>
-                </div>
             </div>
         </div>
     );

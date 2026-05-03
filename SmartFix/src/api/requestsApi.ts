@@ -1,17 +1,46 @@
 import api from '../api/axios';
 
 export interface CreateRequestCommand {
+    type: number; // 0 - В сервисе, 1 - Выездной
     deviceTypeId: string;
     deviceModelId?: string | null;
     deviceModelName: string;
-    serviceId?: string | null;
-    price?: number | null;
     description: string;
     deviceSerialNumber: string;
+
     contactEmail: string;
     contactName: string;
     contactPhoneNumber: string;
+
+    fieldAddress?: string | null;
+    scheduledTime?: string | null;
+    parentRequestId?: string | null;
+    promoCodeText?: string | null;
+    serviceIds?: string[];
     photos?: File[];
+}
+
+export interface CreateRequestByManagerCommand {
+    clientId?: string | null;
+    contactName: string;
+    contactEmail: string;
+    contactPhone: string;
+
+    type: number;
+    deviceTypeId?: string | null;
+    deviceModelId?: string | null;
+    deviceModelName?: string | null;
+    description: string;
+    serialNumber?: string | null;
+    deviceAppearance: string | null;
+    devicePackage: string | null;
+
+    fieldAddress?: string | null;
+    scheduledTime?: string | null;
+    parentRequestId?: string | null;
+
+    customServices: { name: string, price: number }[];
+    serviceIds: string[];
 }
 
 export interface RequestDto {
@@ -27,12 +56,16 @@ export interface RequestDto {
 
 export interface ClientRequestDto {
     id: string;
-    serviceName: string;
+    deviceModelName: string;
     createdAt: string;
-    status: number; // Enum (число)
-    statusName: string; // Строка (если бэк возвращает, иначе маппим на фронте)
+    status: number;
 }
 
+export interface ClientRequestForSelectDto {
+    id: string;
+    deviceModelName: string;
+    closedAt: string;
+}
 
 export interface RequestsFilterParams {
     client?: string;
@@ -44,97 +77,105 @@ export interface RequestsFilterParams {
 
 export interface RequestDetailsDto {
     id: string;
-    status: number; // Enum
-    statusName: string;
+    type: number;
+    status: number;
     description: string;
-    deviceSerialNumber: string;
+    diagnosticResult: string | null;
+    deviceAppearance: string | null;
+    devicePackage: string | null;
+    cancellationReason: string | null;
+
+    basePrice: number;
+    finalPrice: number;
+
     createdAt: string;
     closedAt: string | null;
 
-    // Устройство
-    deviceType: string;
-    deviceModel: string;
+    deviceTypeId: string;
+    deviceTypeName: string;
+    deviceModelId: string | null;
+    deviceModelName: string;
+    deviceSerialNumber: string;
 
-    // Клиент
     clientId: string;
-    clientName: string;
-    clientPhone: string;
-    clientEmail: string;
+    contactName: string;
+    contactPhone: string;
+    contactEmail: string;
 
-    // Услуга и Цена
-    serviceName: string;
-    price: number | null; // Цена может быть не установлена
+    fieldAddress: string | null;
+    scheduledTime: string | null;
+    parentRequestId: string | null;
 
-    // Исполнитель
-    specialistId: string | null;
-    specialistName: string | null;
+    masterId: string | null;
+    masterName: string | null;
 
-    // Списки
-    photoPaths: string[]; // Пути к фото
-    history: { status: string; date: string }[];
+    hasReview: boolean;
+    reviewRating?: number;
+    reviewComment?: string;
+
+    photoPaths: string[];
+    services: { id: string, serviceId: string | null, serviceName: string, price: number }[];
+    appliedDiscounts: { id: string, name: string, savedAmount: number }[];
+    statusHistories: { status: number, date: string }[];
 }
 
 // Маппинг статусов (число -> текст/класс)
 export const STATUS_NUMBER_MAP: Record<number, { label: string; class: string }> = {
     0: {label: 'Новая', class: 'status-new'},
-    1: {label: 'На диагностике', class: 'status-diagnostics'},
-    2: {label: 'В работе', class: 'status-in-progress'},
-    3: {label: 'Готова', class: 'status-ready'},
-    4: {label: 'Закрыта', class: 'status-closed'},
-    5: {label: 'Отменена', class: 'status-cancelled'}
+    1: {label: 'Принята', class: 'status-accepted'},
+    2: {label: 'На диагностике', class: 'status-diagnostics'},
+    3: {label: 'В работе', class: 'status-in-progress'},
+    4: {label: 'На согласовании', class: 'status-pending'},
+    5: {label: 'Готова', class: 'status-ready'},
+    6: {label: 'Закрыта', class: 'status-closed'},
+    7: {label: 'Отменена', class: 'status-cancelled'}
 };
 export const STATUS_NAME_MAP: Record<string, { label: string; class: string }> = {
     'New': {label: 'Новая', class: 'status-new'},
+    'Accepted': {label: 'Принята', class: 'status-accepted'},
+    'Pending': {label: 'На согласовании', class: 'status-pending'},
     'Diagnostics': {label: 'На диагностике', class: 'status-diagnostics'},
     'InProgress': {label: 'В работе', class: 'status-in-progress'},
     'Ready': {label: 'Готова', class: 'status-ready'},
     'Closed': {label: 'Закрыта', class: 'status-closed'},
     'Cancelled': {label: 'Отменена', class: 'status-cancelled'}
 };
-
-export const getStatusRussianName = (status: string | number): string => {
-    // Если приходит число (Enum)
-    const mapNumeric: Record<number, string> = {
-        0: 'Новая', 1: 'Диагностика', 2: 'В работе',
-        3: 'Готова', 4: 'Закрыта', 5: 'Отменена'
-    };
-    // Если приходит строка (String Enum)
-    const mapString: Record<string, string> = {
-        'New': 'Новая', 'Diagnostics': 'Диагностика', 'InProgress': 'В работе',
-        'Ready': 'Готова', 'Closed': 'Закрыта', 'Cancelled': 'Отменена'
-    };
-
-    if (typeof status === 'number') return mapNumeric[status] || 'Неизвестно';
-    return mapString[status] || status;
-};
-
 export const requestsApi = {
     async createRequest(token: string, data: CreateRequestCommand) {
         const formData = new FormData();
 
-        // Добавляем простые поля
+        formData.append('type', data.type.toString());
         formData.append('deviceTypeId', data.deviceTypeId);
         formData.append('deviceModelName', data.deviceModelName);
         formData.append('description', data.description);
-        if (data.price) formData.append('price', data.price.toString());
 
         if (data.deviceModelId) formData.append('deviceModelId', data.deviceModelId);
-        if (data.serviceId) formData.append('serviceId', data.serviceId);
-        if (data.deviceSerialNumber) formData.append('deviceSerialNumber', data.deviceSerialNumber);
+        if (data.deviceSerialNumber) formData.append('serialNumber', data.deviceSerialNumber);
 
         if (data.contactEmail) formData.append('contactEmail', data.contactEmail);
         if (data.contactName) formData.append('contactName', data.contactName);
-        if (data.contactPhoneNumber) formData.append('contactPhoneNumber', data.contactPhoneNumber);
+        if (data.contactPhoneNumber) formData.append('contactPhone', data.contactPhoneNumber);
 
-        // Добавляем файлы (важно: имя параметра 'Photos' должно совпадать с бэкендом)
+        // Логистика
+        if (data.type === 1) {
+            if (data.fieldAddress) formData.append('fieldAddress', data.fieldAddress);
+            if (data.scheduledTime) formData.append('scheduledTime', data.scheduledTime);
+        } else if(data.type === 2){
+            if (data.scheduledTime) formData.append('scheduledTime', data.scheduledTime);
+        }
+
+        if (data.promoCodeText) formData.append('promoCodeCode', data.promoCodeText);
+        if (data.serviceIds && data.serviceIds.length > 0) {
+            data.serviceIds.forEach(id => formData.append('serviceIds', id));
+        }
+
         if (data.photos && data.photos.length > 0) {
             data.photos.forEach((file) => {
                 formData.append('Photos', file);
             });
         }
 
-        // Axios сам выставит правильный Content-Type с boundary
-        return api.post('/Requests', formData, {
+        return api.post('/Requests/create', formData, {
             withCredentials: true,
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -143,8 +184,16 @@ export const requestsApi = {
         });
     },
 
+    async createRequestByManager(token: string, data: CreateRequestByManagerCommand) {
+        console.log(data);
+        return api.post('/Requests/createByManager', data, {
+            withCredentials: true,
+            headers: { Authorization: `Bearer ${token}` }
+        });
+    },
+
     async getAllRequestsForManager(token: string, filterParams: RequestsFilterParams) {
-        const response = await api.get('/Requests/manager-list', {
+        const response = await api.get('/Requests/allRequestsForManager', {
             params: filterParams,
             withCredentials: true,
             headers: {
@@ -155,9 +204,26 @@ export const requestsApi = {
     },
 
     async getClientRequests(token: string) {
-        const response = await api.get('/Requests/client_list', {
+        const response = await api.get('/Requests/clientRequestsForClient', {
             withCredentials: true,
-            headers: { Authorization: `Bearer ${token}` }
+            headers: {Authorization: `Bearer ${token}`}
+        });
+        return response.data;
+    },
+    async getClientRequestsForManager(token: string, clientId: string) {
+        const response = await api.get('/Requests/clientRequestsForManager', {
+            params:{clientId},
+            withCredentials: true,
+            headers: {Authorization: `Bearer ${token}`}
+        });
+        return response.data;
+    },
+
+    async getClosedClientRequests(token: string, clientId: string) {
+        const response = await api.get('/Requests/closedClientRequests', {
+            params:{clientId},
+            withCredentials: true,
+            headers: {Authorization: `Bearer ${token}`}
         });
         return response.data;
     },
@@ -170,8 +236,8 @@ export const requestsApi = {
         return response.data;
     },
 
-    async assignSpecialist(token: string, id: string, specialistId: string,) {
-        return api.patch(`/Requests/specialist`, {requestId: id, specialistId}, {
+    async assignMaster(token: string, id: string, masterId: string,) {
+        return api.patch(`/Requests/master`, {requestId: id, masterId}, {
             withCredentials: true,
             headers: {Authorization: `Bearer ${token}`}
         });
@@ -184,11 +250,89 @@ export const requestsApi = {
         });
     },
 
-    async assignPrice(token: string, id: string, price: number,) {
-        return api.patch(`/Requests/price`, {requestId: id, price}, {
+    async cancel(token: string, id: string, reason: string) {
+        return api.patch(`/Requests/cancel`, {id, reason}, {
             withCredentials: true,
             headers: {Authorization: `Bearer ${token}`}
         });
-    }
+    },
 
+    async addService(token: string, id: string, serviceId?: string, serviceName?: string, servicePrice?: number) {
+        return api.patch(`/Requests/addService`, {requestId: id, serviceId, serviceName, servicePrice}, {
+            withCredentials: true,
+            headers: {Authorization: `Bearer ${token}`}
+        });
+    },
+
+    async removeService(token: string, id: string, serviceId: string) {
+        return api.patch(`/Requests/removeService`, {requestId: id, serviceId}, {
+            withCredentials: true,
+            headers: {Authorization: `Bearer ${token}`}
+        });
+    },
+    async updateServices(token: string, id: string, services: { serviceId: string | null, name: string, price: number }[]) {
+        return api.patch(`/Requests/services`, { requestId: id, services: services }, {
+            withCredentials: true,
+            headers: { Authorization: `Bearer ${token}` }
+        });
+    },
+    async updateAcceptance(token: string, id: string, appearance: string, devicePackage: string) {
+        return api.patch(`/Requests/acceptance`, {id, appearance, package: devicePackage}, {
+            withCredentials: true,
+            headers: {Authorization: `Bearer ${token}`}
+        });
+    },
+
+    async updateDeviceInfo(token: string, id: string, deviceTypeId: string, deviceModelName: string, deviceSerialNumber: string, deviceModelId?: string) {
+        return api.patch(`/Requests/deviceInfo`, {
+            id,
+            deviceTypeId,
+            deviceModelId,
+            deviceModelName,
+            deviceSerialNumber
+        }, {
+            withCredentials: true,
+            headers: {Authorization: `Bearer ${token}`}
+        });
+    },
+    async updateFieldRequestInfo(token: string, id: string, fieldAddress: string, scheduledTime: string) {
+        return api.patch(`/Requests/fieldRequestInfo`, {
+            id,
+            fieldAddress,
+            scheduledTime
+        }, {
+            withCredentials: true,
+            headers: {Authorization: `Bearer ${token}`}
+        });
+    },
+    async updateContactInfo(token: string, id: string, contactEmail: string, contactName: string, contactPhone: string) {
+        return api.patch(`/Requests/contactInfo`, {
+            id,
+            contactEmail,
+            contactName,
+            contactPhone
+        }, {
+            withCredentials: true,
+            headers: {Authorization: `Bearer ${token}`}
+        });
+    },
+
+    async updateDiagnosticsResult(token: string, id: string, result: string) {
+        return api.patch(`/Requests/diagnosticsResult`, {id, result}, {
+            withCredentials: true,
+            headers: {Authorization: `Bearer ${token}`}
+        });
+    },
+
+    async approveRequest(token: string, id: string) {
+        return api.patch(`/Requests/approve`, {id}, { headers: { Authorization: `Bearer ${token}` } });
+    },
+
+    async rejectRequest(token: string, id: string) {
+        return api.patch(`/Requests/reject`, {id}, { headers: { Authorization: `Bearer ${token}` } });
+    },
+
+    async leaveReview(token: string, requestId: string, rating: number, comment: string) {
+        return api.post(`/Requests/leaveReview`, { requestId, rating, comment }, { headers: { Authorization: `Bearer ${token}` } });
+    }
 };

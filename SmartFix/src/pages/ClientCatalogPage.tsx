@@ -136,6 +136,19 @@ export const ClientCatalogPage: React.FC = () => {
         setIsRequestModalOpen(true);
     };
 
+    const handleBookService = (e: React.MouseEvent, service: ServiceForClient) => {
+        e.stopPropagation(); // Отменяем переход на страницу деталей
+        setModalData({
+            serviceId: service.id,
+            serviceName: service.name,
+            price: service.price,
+            deviceTypeId: service.deviceTypeId,
+            deviceModelId: service.deviceModelId,
+            manufacturerId: service.manufacturerId
+        });
+        setIsRequestModalOpen(true);
+    };
+
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentServices = services.slice(indexOfFirstItem, indexOfLastItem);
@@ -274,15 +287,12 @@ export const ClientCatalogPage: React.FC = () => {
                                                         Модель: {service.deviceModelName ? service.deviceModelName : 'Любая'}
                                                     </div>
                                                 </div>
-                                                {service.averageRating > 0 && (
-                                                    <div className="card-rating">
-                                                        <span>★</span>
-                                                        <span>{service.averageRating}</span>
-                                                    </div>
-                                                )}
                                             </div>
                                             <div className="card-footer">
                                                 <span className="card-price">{service.price} руб.</span>
+                                                <button className="action-button save-button small-btn" onClick={(e) => handleBookService(e, service)}>
+                                                    Заказать
+                                                </button>
                                             </div>
                                         </div>
                                     </div>

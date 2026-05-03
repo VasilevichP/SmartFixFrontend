@@ -272,7 +272,6 @@ export const ManagerServicesPage: React.FC = () => {
                     <main className="content-area">
                         <div className="content-header">
                             <div className="content-header-left">
-                                <h1 className="page-title">Услуги</h1>
                                 <button
                                     className={`filter-toggle-btn ${showFilters ? 'active' : ''}`}
                                     onClick={() => setShowFilters(!showFilters)}
@@ -281,6 +280,7 @@ export const ManagerServicesPage: React.FC = () => {
                                     <FilterIcon/>
                                     <span>Фильтры</span>
                                 </button>
+                                <h1 className="page-title">Услуги</h1>
                             </div>
                             <button
                                 className="add-button"

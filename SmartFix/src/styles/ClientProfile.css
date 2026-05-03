@@ -63,7 +63,29 @@
     display: flex;
     gap: 12px;
 }
+.error-text{
+    color: #950017;
+    font-size: 14px;
+    margin: 0;
+    background-color: #ffbebe;
+    padding: 10px;
+    border-color: #950017;
+    border-radius: 6px;
+}
 
+.input-error-text{
+    color: #e10202;
+    font-size: 14px;
+    margin: 0;
+}
+.PhoneInputInput.input-error, /* Класс, который вешает библиотека на сам input */
+.form-input.input-error,
+.input-field.input-error {
+    border-color: #dc3545;
+}.form-row {
+     display: flex;
+     gap: 16px;
+ }
 /* --- Контейнер для списка заявок --- */
 .card {
     background-color: #ffffff;
@@ -102,6 +124,8 @@
 /* --- Список заявок --- */
 .requests-list {
     padding: 8px;
+    height: 300px;
+    overflow-y: scroll;
 }
 
 .request-item {

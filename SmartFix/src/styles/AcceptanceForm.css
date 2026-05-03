@@ -1,0 +1,67 @@
+.acceptance-card {
+    border: 1px solid #cce5ff; /* Легкая синяя обводка, чтобы выделить */
+    background-color: #f8fbff;
+}
+
+.acceptance-group {
+    margin-bottom: 20px;
+}
+
+/* Теги (Чипсы) */
+.tags-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.tag-chip {
+    background-color: #e9ecef;
+    border: 1px solid #ced4da;
+    border-radius: 16px;
+    padding: 4px 10px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #495057;
+}
+
+.tag-chip:hover {
+    background-color: #dee2e6;
+    border-color: #adb5bd;
+}
+
+.tag-chip:active {
+    background-color: #007bff;
+    color: white;
+}
+
+/* Сетка чекбоксов */
+.checkbox-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Две колонки */
+    gap: 8px;
+}
+
+.checkbox-label-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #1a1a1a;
+    font-size: 14px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.checkbox-label-row input {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.acceptance-actions {
+    display: flex;
+    justify-content: flex-end;
+    border-top: 1px solid #e0e0e0;
+    padding-top: 15px;
+}

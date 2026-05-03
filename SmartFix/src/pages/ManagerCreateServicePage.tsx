@@ -3,46 +3,43 @@ import ManagerHeader from "../components/ManagerHeader.tsx";
 import '../styles/CreateServicePage.css';
 import {categoriesApi, type Category} from "../api/categoriesApi.ts";
 import {type CreateServiceCommand, servicesApi} from "../api/servicesApi.ts";
-import {useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {type DeviceType, deviceTypesApi} from "../api/deviceTypesApi.ts";
 import {type Manufacturer, manufacturersApi} from "../api/manufacturersApi.ts";
 import {type DeviceModel, deviceModelsApi} from "../api/deviceModelsApi.ts";
+import {useApi} from "../hooks/useApi.ts";
 
 export const ManagerCreateServicePage: React.FC = () => {
     const navigate = useNavigate();
-    const [token, setToken] = useState("");
 
     const [categories, setCategories] = useState<Category[]>([]);
     const [deviceTypes, setDeviceTypes] = useState<DeviceType[]>([]);
     const [manufacturers, setManufacturers] = useState<Manufacturer[]>([]);
     const [models, setModels] = useState<DeviceModel[]>([]);
 
-    const [error, setError] = useState("")
-    const [isLoading, setIsLoading] = useState(false);
+    const token = localStorage.getItem("token") || '';
+
+    const [createService, {isLoading}] = useApi(servicesApi.createService);
+
+    const loadStaticData = async () => {
+        const [cats, types, manufs] = await Promise.all([
+            categoriesApi.getAllServiceCategories(token),
+            deviceTypesApi.getAllDeviceTypes(token),
+            manufacturersApi.getAllManufacturers(token)
+        ]);
+        setCategories(cats);
+        setDeviceTypes(types);
+        setManufacturers(manufs);
+    };
+    const [loadData] = useApi(loadStaticData, false);
 
     useEffect(() => {
-        const tempToken = localStorage.getItem("token");
-        if (!tempToken) {
+        if (!token) {
             navigate('/');
             return;
         }
-        setToken(tempToken);
-        const loadStaticData = async () => {
-            try {
-                const [cats, types, manufs] = await Promise.all([
-                    categoriesApi.getAllServiceCategories(token as string),
-                    deviceTypesApi.getAllDeviceTypes(token as string),
-                    manufacturersApi.getAllManufacturers(token as string)
-                ]);
-                setCategories(cats);
-                setDeviceTypes(types);
-                setManufacturers(manufs);
-            } catch (err) {
-                console.log("Ошибка загрузки справочников", err);
-                setError("Не удалось загрузить справочники. Проверьте соединение.");
-            }
-        };
-        loadStaticData();
+
+        loadData();
     }, [navigate]);
 
     // Состояние формы
@@ -104,31 +101,24 @@ export const ManagerCreateServicePage: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setError("");
-        setIsLoading(true);
 
-        try {
-            // Формируем объект для отправки (DTO)
-            const command: CreateServiceCommand = {
-                name: formData.name,
-                description: formData.description,
-                categoryId: formData.categoryId,
-                deviceTypeId: formData.deviceTypeId,
-                manufacturerId: formData.manufacturerId === "" ? undefined : formData.manufacturerId,
-                deviceModelId: formData.deviceModelId === "" ? undefined : formData.deviceModelId,
-                price: parseFloat(formData.price),
-                warrantyPeriod: parseInt(formData.warrantyPeriod)
-            };
+        // try {
+        // Формируем объект для отправки (DTO)
+        const command: CreateServiceCommand = {
+            name: formData.name,
+            description: formData.description,
+            categoryId: formData.categoryId,
+            deviceTypeId: formData.deviceTypeId,
+            manufacturerId: formData.manufacturerId === "" ? undefined : formData.manufacturerId,
+            deviceModelId: formData.deviceModelId === "" ? undefined : formData.deviceModelId,
+            price: parseFloat(formData.price),
+            warrantyPeriod: parseInt(formData.warrantyPeriod)
+        };
+        const result = await createService(token, command);
 
-            await servicesApi.createService(token as string, command);
-
+        // 3. Если ошибки не было, хук вернул результат.
+        if (result !== undefined) {
             // navigate('/manager/services');
-        } catch (err: any) {
-            console.log("Ошибка создания услуги", err);
-            const msg = err.response?.data || "Произошла ошибка при создании услуги";
-            setError(typeof msg === 'string' ? msg : JSON.stringify(msg));
-        } finally {
-            setIsLoading(false);
         }
     };
 
@@ -148,14 +138,15 @@ export const ManagerCreateServicePage: React.FC = () => {
         }));
     };
 
+    // if (isPageLoading) return <div>Загрузка...</div>;
 
     return (
         <div>
             <ManagerHeader/>
             <div className="create-service-page-container">
-                <div className="form-header">
-                    <h1 className="form-title">Создание новой услуги</h1>
-                    <p className="form-subtitle">Заполните обязательные поля, чтобы добавить услугу в каталог</p>
+                <div className="create-service-header">
+                    <Link to="/manager/services" className="back-link">&larr; К списку услуг</Link>
+                    <h1 className="create-service-title">Создание новой услуги</h1>
                 </div>
 
                 <div className="form-container">
@@ -238,7 +229,7 @@ export const ManagerCreateServicePage: React.FC = () => {
                                 <input type="number" id="price" className="form-input"
                                        placeholder="100.00" step="0.01"
                                        value={formData.price} onChange={handleChange} required={true}
-                                       />
+                                />
                             </div>
 
                             <div className="input-group">
@@ -260,9 +251,10 @@ export const ManagerCreateServicePage: React.FC = () => {
                                        checked={formData.isAvailable} onChange={handleCheckboxChange}/>
                             </div>
                         </div>
-                        <p>{error}</p>
                         <div className="form-actions">
-                            <button type="button" className="action-button cancel-button" onClick={handleReset}>Очистить форму</button>
+                            <button type="button" className="action-button cancel-button" onClick={handleReset}>Очистить
+                                форму
+                            </button>
                             <button type="submit" className="action-button submit-button" disabled={isLoading}>
                                 {isLoading ? 'Сохранение...' : 'Создать услугу'}</button>
                         </div>

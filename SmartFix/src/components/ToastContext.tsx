@@ -3,7 +3,7 @@ import '../styles/Toast.css';
 
 type ToastType = 'success' | 'error' | 'info';
 
-interface Toast {
+interface ToastContext {
     id: number;
     message: string;
     type: ToastType;
@@ -16,7 +16,7 @@ interface ToastContextProps {
 const ToastContext = createContext<ToastContextProps | undefined>(undefined);
 
 export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [toasts, setToasts] = useState<Toast[]>([]);
+    const [toasts, setToasts] = useState<ToastContext[]>([]);
 
     const removeToast = useCallback((id: number) => {
         setToasts((prev) => prev.filter((toast) => toast.id !== id));

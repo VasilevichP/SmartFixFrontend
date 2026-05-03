@@ -130,3 +130,9 @@
 .interactive-stars .star.filled {
     color: #f39c12;
 }
+/* Текст ошибки */
+.input-error-text {
+    color: #e10202;
+    font-size: 14px;
+    margin: 0;
+}

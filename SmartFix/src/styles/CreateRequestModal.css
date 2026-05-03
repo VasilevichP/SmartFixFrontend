@@ -1,5 +1,5 @@
 .request-modal {
-    width: 500px;
+    width: 600px;
     max-width: 95%;
 }
 
@@ -38,9 +38,76 @@
     width: 100%;
 }
 
+.field-container {
+    flex: 1;          /* Занимает доступное пространство (50% при двух элементах) */
+    display: flex;
+    flex-direction: column; /* Элементы внутри (инпут + ошибка) встают друг под другом */
+    min-width: 0;     /* Предотвращает переполнение flex-контейнера */
+}
+
+
+/* Опционально: подсветка поля при ошибке */
+.PhoneInputInput.input-error, /* Класс, который вешает библиотека на сам input */
+.form-input.input-error {
+    border-color: #dc3545;
+}
+
 .manual-mode-toggle {
     margin-top: 8px;
     margin-bottom: 10px;
+}
+
+.delivery-options {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.delivery-option {
+    flex: 1;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.delivery-option:hover {
+    border-color: #aaa;
+}
+
+.delivery-option.selected {
+    border-color: #007bff;
+    background-color: #f0f7ff;
+}
+
+.delivery-option input {
+    display: none; /* Скрываем стандартную радиокнопку */
+}
+
+.option-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.option-title {
+    font-weight: 600;
+    color: #333;
+}
+
+.option-desc {
+    font-size: 0.8rem;
+    color: #777;
+}
+
+.info-hint {
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 5px;
+    font-style: italic;
 }
 
 .file-upload-label {

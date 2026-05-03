@@ -13,18 +13,20 @@ export const RegisterPage = () => {
     const [name, setName] = useState("");
 
     const [error, setError] = useState("");
+    const [phoneError, setPhoneError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
         setError("");
-        setIsLoading(true);
+        setPhoneError("")
 
         if (phone && !isValidPhoneNumber(phone)) {
-            setError("Введен некорректный номер телефона");
+            setPhoneError("Некорректный формат номера телефона");
             setIsLoading(false);
             return;
         }
+        setIsLoading(true);
         try {
 
             const registerData = {
@@ -37,8 +39,8 @@ export const RegisterPage = () => {
             navigate('/');
         } catch (err: any) {
             console.error("Ошибка регистрации:", err);
-            const serverMessage = err.response?.data || "Произошла ошибка при регистрации. Попробуйте позже.";
-            setError(typeof serverMessage === 'string' ? serverMessage : "Ошибка сервера");
+            const serverMessage = err.message || "Произошла ошибка при регистрации. Попробуйте позже.";
+            setError(serverMessage);
         } finally {
             setIsLoading(false);
         }
@@ -73,12 +75,13 @@ export const RegisterPage = () => {
                         </label>
                         <PhoneInput required={true}
                                     id="phone"
-                                    className="input-field"
+                                    className={`input-field ${phoneError ? 'input-error' : ''}`}
                                     country="BY"
                                     placeholder="375291119900"
                                     value={phone}
                                     onChange={setPhone}
                         />
+                        <p className="input-error-text">{phoneError}</p>
                     </div>
 
                     <div className="input-group">
@@ -108,7 +111,9 @@ export const RegisterPage = () => {
                                onChange={(e) => setPassword(e.target.value)}
                         />
                     </div>
-                    <p className="error-text">{error}</p>
+                    {error &&
+                        <p className="error-text">{error}</p>
+                    }
 
                     <button type="submit" className="login-button" disabled={isLoading}>
                         {isLoading ? "Регистрация..." : "Создать аккаунт"}

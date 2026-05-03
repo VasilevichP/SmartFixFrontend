@@ -21,6 +21,15 @@ const ManagerHeader = () => {
                         <a href="/manager/dictionaries" className="nav-link">
                             Справочники
                         </a>
+                        <a href="/manager/loyaltyPrograms" className="nav-link">
+                            Программы лояльности
+                        </a>
+                        <a href="/manager/clients" className="nav-link">
+                            Клиенты
+                        </a>
+                        <a href="/manager/masters" className="nav-link">
+                            Мастера
+                        </a>
                         <a href="/manager/statistics" className="nav-link">
                             Статистика
                         </a>

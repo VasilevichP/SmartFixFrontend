@@ -1,5 +1,4 @@
 import api from '../api/axios';
-import type {ReviewDto} from "./reviewsApi.ts";
 
 export interface Service {
     id: string;
@@ -24,6 +23,12 @@ export interface ServiceForClient {
     manufacturerName?: string;
     price: number;
     averageRating: number;
+}
+
+export interface ServiceForRequest {
+    serviceId: string;
+    serviceName: string;
+    price: number;
 }
 
 export interface ServicesManagerFilterParams {
@@ -75,9 +80,6 @@ export interface ServiceDetailsDto {
 
     deviceModelId?: string;
     deviceModelName?: string;
-
-    averageRating: number;
-    reviews: ReviewDto[];
 }
 
 // Команда обновления (должна совпадать с UpdateServiceCommand на бэке)
@@ -100,7 +102,7 @@ export interface DeleteServiceCommand {
 export const servicesApi = {
 
     async getAllServicesForManager(token: string, filterParams: ServicesManagerFilterParams) {
-        const response = await api.get('/Services/manager-list', {
+        const response = await api.get('/Services/managerList', {
             params: filterParams,
             withCredentials: true,
             headers: {
@@ -111,14 +113,23 @@ export const servicesApi = {
     },
 
     async getAllServicesForClient(token: string, filterParams: ServicesClientFilterParams) {
-        const response = await api.get('/Services/client-list', {
+        const response = await api.get('/Services/clientList', {
             params: filterParams,
             withCredentials: true,
             headers: {
                 Authorization: `Bearer ${token}`,
             },
         });
-        console.log(response.data);
+        return response.data;
+    },
+
+    async getAllServicesForRequest(token: string) {
+        const response = await api.get('/Services/requestList', {
+            withCredentials: true,
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
         return response.data;
     },
 

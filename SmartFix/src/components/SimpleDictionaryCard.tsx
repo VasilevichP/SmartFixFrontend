@@ -1,7 +1,7 @@
 import {useState} from "react";
 import '../styles/DictionaryPage.css';
 
-interface DictionaryItem{
+interface DictionaryItem {
     id: string;
     name: string;
 }
@@ -14,21 +14,16 @@ interface SimpleCardProps {
     onEdit: (id: string, name: string) => void;
 }
 
-export const SimpleDictionaryCard: React.FC<SimpleCardProps> = ({ title, items, onAdd, onDelete, onEdit }) => {
+export const SimpleDictionaryCard: React.FC<SimpleCardProps> = ({title, items, onAdd, onDelete, onEdit}) => {
     const [newItemName, setNewItemName] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleAdd = async () => {
         if (!newItemName.trim()) return;
         setIsSubmitting(true);
-        try {
-            await onAdd(newItemName);
-            setNewItemName("");
-        } catch (e) {
-            alert("Ошибка при добавлении");
-        } finally {
-            setIsSubmitting(false);
-        }
+        await onAdd(newItemName);
+        setNewItemName("");
+        setIsSubmitting(false);
     };
 
     const handleDeleteClick = async (id: string) => {
@@ -59,8 +54,10 @@ export const SimpleDictionaryCard: React.FC<SimpleCardProps> = ({ title, items, 
                     <li key={item.id} className="list-item">
                         <span className="item-name">{item.name}</span>
                         <div className="item-actions">
-                            <button className="text-btn edit-btn" onClick={() => onEdit(item.id, item.name)}>Ред.</button>
-                            <button className="text-btn delete-btn" onClick={() => handleDeleteClick(item.id)}>Удал.</button>
+                            <button className="text-btn edit-btn" onClick={() => onEdit(item.id, item.name)}>Ред.
+                            </button>
+                            <button className="text-btn delete-btn" onClick={() => handleDeleteClick(item.id)}>Удал.
+                            </button>
                         </div>
                     </li>
                 ))}

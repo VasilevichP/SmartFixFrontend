@@ -2,46 +2,7 @@ import React, {useEffect, useState} from 'react';
 import ManagerHeader from "../components/ManagerHeader.tsx";
 import '../styles/ManagerPages.css';
 import {useNavigate} from "react-router-dom";
-import {type RequestDto, requestsApi} from "../api/requestsApi.ts";
-
-const getStatusName = (status: number) => {
-    switch (status) {
-        case 0:
-            return 'Новая';
-        case 1:
-            return 'Диагностика';
-        case 2:
-            return 'В работе';
-        case 3:
-            return 'Готова';
-        case 4:
-            return 'Закрыта';
-        case 5:
-            return 'Отменена';
-        default:
-            return 'Неизвестно';
-    }
-};
-
-// Хелпер для статусов (цвет)
-const getStatusClassName = (status: number) => {
-    switch (status) {
-        case 0:
-            return 'status-new';        // Синий/Зеленый
-        case 1:
-            return 'status-diagnostics'; // Желтый
-        case 2:
-            return 'status-in-progress'; // Оранжевый
-        case 3:
-            return 'status-ready';      // Зеленый
-        case 4:
-            return 'status-closed';     // Серый
-        case 5:
-            return 'status-cancelled';  // Красный
-        default:
-            return '';
-    }
-};
+import {type RequestDto, requestsApi, STATUS_NUMBER_MAP} from "../api/requestsApi.ts";
 
 const FilterIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
@@ -61,7 +22,6 @@ export const ManagerRequestsPage: React.FC = () => {
     // --- ФИЛЬТРЫ ---
     const [client, setClient] = useState("");
     const [device, setDevice] = useState("");
-    const [service, setService] = useState("");
     const [statusFilter, setStatusFilter] = useState("all"); // "all" или число (0,1,2...)
     const [sortOrder, setSortOrder] = useState("0"); // 0=Новые, 1=Старые
 
@@ -78,7 +38,6 @@ export const ManagerRequestsPage: React.FC = () => {
             const data = await requestsApi.getAllRequestsForManager(token, {
                 client: client,
                 device: device,
-                service: service,
                 status: statusFilter !== "all" ? parseInt(statusFilter) : undefined,
                 sortOrder: sortOrder
             });
@@ -90,15 +49,13 @@ export const ManagerRequestsPage: React.FC = () => {
         }
     };
 
-    // Дебаунс для поиска
     useEffect(() => {
         const timer = setTimeout(() => {
             fetchRequests();
         }, 500);
         return () => clearTimeout(timer);
-    }, [client, device, service]);
+    }, [client, device]);
 
-    // Обновление при смене фильтров
     useEffect(() => {
         fetchRequests();
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -147,18 +104,7 @@ export const ManagerRequestsPage: React.FC = () => {
                                     onChange={(e) => setDevice(e.target.value)}
                                 />
                             </div>
-                            <div className="filter-group">
-                                <label className="filter-label">Услуга</label>
-                                <input
-                                    type="text"
-                                    className="search-input"
-                                    placeholder="Введите название..."
-                                    value={service}
-                                    onChange={(e) => setService(e.target.value)}
-                                />
-                            </div>
 
-                            {/* Статус */}
                             <div className="filter-group">
                                 <label className="filter-label">Статус</label>
                                 <select
@@ -167,12 +113,9 @@ export const ManagerRequestsPage: React.FC = () => {
                                     onChange={(e) => setStatusFilter(e.target.value)}
                                 >
                                     <option value="all">Все статусы</option>
-                                    <option value="0">Новая</option>
-                                    <option value="1">На диагностике</option>
-                                    <option value="2">В работе</option>
-                                    <option value="3">Готова к выдаче</option>
-                                    <option value="4">Закрыта</option>
-                                    <option value="5">Отменена</option>
+                                    {Object.entries(STATUS_NUMBER_MAP).map(([key, val]) => (
+                                        <option key={key} value={key}>{val.label}</option>
+                                    ))}
                                 </select>
                             </div>
 
@@ -205,7 +148,9 @@ export const ManagerRequestsPage: React.FC = () => {
                                 </button>
                                 <h1 className="page-title">Заявки</h1>
                             </div>
-                            {/* Здесь можно добавить кнопку "Экспорт в Excel" если нужно */}
+                            <button className="add-button" onClick={() => navigate('/manager/requests/create')}>
+                                <span>+</span> Создать заявку
+                            </button>
                         </div>
 
                         <div className="table-card">
@@ -217,7 +162,7 @@ export const ManagerRequestsPage: React.FC = () => {
                                         <thead>
                                         <tr>
                                             <th>Клиент</th>
-                                            <th>Услуга / Устройство</th>
+                                            <th>Устройство</th>
                                             <th>Дата</th>
                                             <th>Исполнитель</th>
                                             <th>Статус</th>
@@ -230,16 +175,13 @@ export const ManagerRequestsPage: React.FC = () => {
                                                     onClick={() => navigate(`/manager/requests/${request.id}`)}>
                                                     <td style={{fontWeight: 500}}>{request.clientName}</td>
                                                     <td>
-                                                        <div>{request.serviceName}</div>
-                                                        <div style={{fontSize: '0.85em', color: '#888'}}>
-                                                            {request.deviceModelName || "Устройство не указано"}
-                                                        </div>
+                                                        <div>{request.deviceModelName}</div>
                                                     </td>
                                                     <td>{new Date(request.createdAt).toLocaleDateString()}</td>
                                                     <td>{request.specialistName}</td>
                                                     <td>
-                                                <span className={`status-badge ${getStatusClassName(request.status)}`}>
-                                                    {getStatusName(request.status)}
+                                                <span className={`status-badge ${STATUS_NUMBER_MAP[request.status].class}`}>
+                                                    {STATUS_NUMBER_MAP[request.status].label}
                                                 </span>
                                                     </td>
                                                 </tr>

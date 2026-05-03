@@ -2,16 +2,17 @@ import React, {useEffect, useState} from 'react';
 import ClientHeader from "../components/ClientHeader.tsx";
 import '../styles/ClientProfile.css';
 import {Link, useNavigate} from "react-router-dom";
-import {type UserProfile, usersApi} from "../api/usersApi.ts";
 import {type ClientRequestDto, requestsApi, STATUS_NUMBER_MAP} from "../api/requestsApi.ts";
 import PhoneInput, {isValidPhoneNumber} from "react-phone-number-input/input";
+import {useApi} from "../hooks/useApi.ts";
+import {clientsApi, type UserProfile} from "../api/clientsApi.ts";
+
 export const ClientProfilePage: React.FC = () => {
     const navigate = useNavigate();
 
     // --- STATE ---
     const [user, setUser] = useState<UserProfile | null>(null);
     const [requests, setRequests] = useState<ClientRequestDto[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
 
     // Редактирование профиля
     const [isEditing, setIsEditing] = useState(false);
@@ -23,32 +24,26 @@ export const ClientProfilePage: React.FC = () => {
     const [activeTab, setActiveTab] = useState<'active' | 'history'>('active');
 
     const token = localStorage.getItem('token') || "";
+    const [saveProfile, {isLoading: isSaving}] = useApi(clientsApi.updateClient);
+    const [phoneError, setPhoneError] = useState("");
 
+    const loadProfile = async () => {
+        const [userData, requestsData] = await Promise.all([
+            clientsApi.getClientProfile(token),
+            requestsApi.getClientRequests(token)
+        ]);
+
+        setUser(userData);
+        setFormData(userData);
+        setRequests(requestsData);
+    };
+    const [loadData, {isLoading}] = useApi(loadProfile, false);
     // --- ЗАГРУЗКА ДАННЫХ ---
     useEffect(() => {
-        const loadData = async () => {
-            if (!token) {
-                navigate('/');
-                return;
-            }
-
-            try {
-                setIsLoading(true);
-                const [userData, requestsData] = await Promise.all([
-                    usersApi.getUserProfile(token),
-                    requestsApi.getClientRequests(token)
-                ]);
-
-                setUser(userData);
-                setFormData(userData);
-                setRequests(requestsData);
-            } catch (error) {
-                alert("Ошибка загрузки профиля");
-                navigate('/catalog')
-            } finally {
-                setIsLoading(false);
-            }
-        };
+        if (!token) {
+            navigate('/');
+            return;
+        }
         loadData();
     }, [navigate]);
 
@@ -60,11 +55,12 @@ export const ClientProfilePage: React.FC = () => {
     };
 
     const handlePhoneChange = (value?: string) => {
-        setFormData(prev => ({ ...prev, phone: value || '' }));
+        setFormData(prev => ({...prev, phone: value || ''}));
     };
 
     const handleEditClick = () => {
-        if (user) setFormData(user); // Сброс к актуальным данным перед редактированием
+        if (user) setFormData(user);
+        setPhoneError("");
         setIsEditing(true);
     };
 
@@ -74,25 +70,23 @@ export const ClientProfilePage: React.FC = () => {
 
     const handleSaveClick = async (e: any) => {
         e.preventDefault()
+        setPhoneError("");
         if (formData.phone && !isValidPhoneNumber(formData.phone)) {
-            setIsLoading(false);
+            setPhoneError("Некорректный формат номера телефона");
             return;
         }
-        try {
-            await usersApi.updateUserProfile(token, formData);
+        const result = await saveProfile(token, formData.name,formData.email, formData.phone);
+        if (result !== undefined) {
             setUser(formData); // Обновляем отображение
             setIsEditing(false);
-            alert("Профиль обновлен!");
-        } catch (error) {
-            console.error(error);
-            alert("Не удалось обновить профиль");
         }
+
     };
 
     // --- ФИЛЬТРАЦИЯ ЗАЯВОК ---
     // Статусы: 4 (Closed) и 5 (Cancelled) - это история. Остальное - активные.
-    const activeRequests = requests.filter(r => r.status !== 4 && r.status !== 5);
-    const historyRequests = requests.filter(r => r.status === 4 || r.status === 5);
+    const activeRequests = requests.filter(r => r.status !== 6 && r.status !== 7);
+    const historyRequests = requests.filter(r => r.status === 6 || r.status === 7);
 
     const requestsToShow = activeTab === 'active' ? activeRequests : historyRequests;
 
@@ -108,7 +102,7 @@ export const ClientProfilePage: React.FC = () => {
                     <div>
                         <h1 className="welcome-title">Добро пожаловать, {user?.name}!</h1>
                         <p className="welcome-subtitle">
-                            У вас {activeRequests.length} активных заявок.
+                            У вас {activeRequests.length} активных заявок
                         </p>
                     </div>
                 </div>
@@ -123,7 +117,7 @@ export const ClientProfilePage: React.FC = () => {
                                     <button className="action-button cancel-button" onClick={handleCancelClick}>Отмена
                                     </button>
                                     <button type="submit" form="profile-form"
-                                            className="action-button save-button">Сохранить
+                                            className="action-button save-button">{isSaving ? '...' : 'Сохранить'}
                                     </button>
                                 </>
                             ) : (
@@ -147,9 +141,12 @@ export const ClientProfilePage: React.FC = () => {
                                         country="BY"
                                         value={formData.phone}
                                         onChange={handlePhoneChange}
-                                        className="form-input"
+                                        className={`form-input ${phoneError ? 'input-error' : ''}`}
                                         required={true}
                                     />
+                                    {phoneError &&
+                                        <p className="input-error-text">{phoneError}</p>
+                                    }
                                 </div>
                                 <div className="input-group">
                                     <label className="form-label">Email</label>
@@ -206,14 +203,14 @@ export const ClientProfilePage: React.FC = () => {
                                                 от {new Date(request.createdAt).toLocaleDateString()}
                                             </span>
                                         </div>
-                                        <h3 className="request-service-name">{request.serviceName || 'Индивидуальная услуга'}</h3>
+                                        <h3 className="request-service-name">{request.deviceModelName}</h3>
                                     </div>
 
                                     <div className="request-status">
-                                        <span className={`status-badge ${STATUS_NUMBER_MAP[request.status]?.class || ''}`}>
+                                        <span
+                                            className={`status-badge ${STATUS_NUMBER_MAP[request.status]?.class || ''}`}>
                                             {STATUS_NUMBER_MAP[request.status]?.label}
                                         </span>
-                                        {/* Ссылка на страницу деталей (нужно создать ClientRequestDetailsPage) */}
                                         <Link to={`/profile/requests/${request.id}`} className="details-link">
                                             Подробнее &rarr;
                                         </Link>

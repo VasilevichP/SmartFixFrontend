@@ -40,7 +40,7 @@ export const categoriesApi = {
         });
         return response.data;
     },
-    async deleteServiceCategory(token: string, data: DeleteCategory) {
+    async DeleteServiceCategory(token: string, data: DeleteCategory) {
         const response = await api.delete('/ServiceCategories',  {
             withCredentials: true,
             headers: {

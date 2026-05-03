@@ -5,8 +5,9 @@ import {type DeviceType, deviceTypesApi} from "../api/deviceTypesApi.ts";
 import {type Manufacturer, manufacturersApi} from "../api/manufacturersApi.ts";
 import {type DeviceModel, deviceModelsApi} from "../api/deviceModelsApi.ts";
 import {requestsApi} from "../api/requestsApi.ts";
-import {usersApi} from "../api/usersApi.ts";
+import {clientsApi} from "../api/clientsApi.ts";
 import PhoneInput, {isValidPhoneNumber} from "react-phone-number-input/input";
+import {useApi} from "../hooks/useApi.ts";
 
 interface CreateRequestModalProps {
     isOpen: boolean;
@@ -15,7 +16,7 @@ interface CreateRequestModalProps {
     initialData?: {
         serviceId?: string;
         serviceName?: string;
-        price?:number;
+        price?: number;
         deviceTypeId?: string;
         deviceModelId?: string;
         deviceModelName?: string; // Если модель известна из услуги
@@ -28,54 +29,53 @@ interface PhotoAttachment {
     file: File;        // Сам файл для отправки
     previewUrl: string; // Ссылка для тега <img>
 }
+
 export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({isOpen, onClose, initialData}) => {
-    // --- СПРАВОЧНИКИ ---
     const [deviceTypes, setDeviceTypes] = useState<DeviceType[]>([]);
     const [manufacturers, setManufacturers] = useState<Manufacturer[]>([]);
     const [models, setModels] = useState<DeviceModel[]>([]);
 
-    // --- STATE ФОРМЫ ---
     const [deviceTypeId, setDeviceTypeId] = useState("");
     const [manufacturerId, setManufacturerId] = useState("");
     const [deviceModelId, setDeviceModelId] = useState("");
 
-    // Поле для ручного ввода названия, если выбрана галочка "Ввести вручную"
     const [customModelName, setCustomModelName] = useState("");
     const [isManualMode, setIsManualMode] = useState(false);
 
     const [contactEmail, setContactEmail] = useState("");
     const [contactName, setContactName] = useState("");
-    const [contactPhoneNumber, setContactPhoneNumber] = useState<string | undefined>(undefined);;
+    const [contactPhoneNumber, setContactPhoneNumber] = useState<string | undefined>(undefined);
+
+    const [requestType, setRequestType] = useState<number>(0);
+    const [address, setAddress] = useState("");
+    const [scheduledTime, setScheduledTime] = useState("");
 
     const [description, setDescription] = useState("");
     const [serialNumber, setSerialNumber] = useState("");
+    const [promoCode, setPromoCode] = useState("");
     const [photos, setPhotos] = useState<PhotoAttachment[]>([]);
 
-    const [isLoading, setIsLoading] = useState(false);
     const token = localStorage.getItem("token") || "";
 
-    // Сброс и инициализация при открытии
+    const [phoneError, setPhoneError] = useState("");
+    const [submit, {isLoading}] = useApi(requestsApi.createRequest);
+
     useEffect(() => {
         if (isOpen) {
+            setPhoneError("");
             loadData();
-            // Если есть начальные данные (кликнули "Заказать" на услуге)
             if (initialData) {
 
                 setDeviceTypeId(initialData.deviceTypeId || "");
                 setManufacturerId(initialData.manufacturerId || "");
                 setDeviceModelId(initialData.deviceModelId || "");
-
-                if (initialData.deviceModelId) {
-                    setIsManualMode(false);
-                }
+                setIsManualMode(!initialData.deviceModelId);
             } else {
-                // Чистый сброс
                 resetForm();
             }
         }
     }, [isOpen, initialData]);
 
-    // Каскадная загрузка моделей
     useEffect(() => {
         if (deviceTypeId && manufacturerId && !isManualMode) {
             deviceModelsApi.getDeviceModelsByTypeAndManufacturer(token, deviceTypeId, manufacturerId)
@@ -86,22 +86,20 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({isOpen, o
         }
     }, [deviceTypeId, manufacturerId, isManualMode]);
 
-    const loadData = async () => {
-        try {
-            const [types, manufs, profile] = await Promise.all([
-                deviceTypesApi.getAllDeviceTypes(token),
-                manufacturersApi.getAllManufacturers(token),
-                usersApi.getUserProfile(token),
-            ]);
-            setDeviceTypes(types);
-            setManufacturers(manufs);
-            setContactEmail(profile.email);
-            setContactName(profile.name);
-            setContactPhoneNumber(profile.phone);
-        } catch (e) {
-            console.error(e);
-        }
+    const loadDictsAndProfile = async () => {
+        const [types, manufs, profile] = await Promise.all([
+            deviceTypesApi.getAllDeviceTypes(token),
+            manufacturersApi.getAllManufacturers(token),
+            clientsApi.getClientProfile(token),
+        ]);
+        setDeviceTypes(types);
+        setManufacturers(manufs);
+        setContactEmail(profile.email);
+        setContactName(profile.name);
+        setContactPhoneNumber(profile.phone);
     };
+
+    const [loadData] = useApi(loadDictsAndProfile, false);
 
     useEffect(() => {
         return () => {
@@ -114,8 +112,12 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({isOpen, o
         setManufacturerId("");
         setDeviceModelId("");
         setCustomModelName("");
+        setAddress("");
+        setScheduledTime("")
         setDescription("");
         setSerialNumber("");
+        setPromoCode("");
+        setRequestType(0);
         photos.forEach(p => URL.revokeObjectURL(p.previewUrl));
         setIsManualMode(false);
     };
@@ -129,16 +131,14 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({isOpen, o
                 return;
             }
 
-            // Создаем объекты с превью
             const newAttachments: PhotoAttachment[] = newFiles.map(file => ({
-                id: Math.random().toString(36).substring(7), // Генерируем уникальный ID
+                id: Math.random().toString(36).substring(7),
                 file: file,
-                previewUrl: URL.createObjectURL(file) // Создаем ссылку на blob
+                previewUrl: URL.createObjectURL(file)
             }));
 
             setPhotos(prev => [...prev, ...newAttachments]);
         }
-        // Сбрасываем value инпута, чтобы можно было загрузить тот же файл повторно если удалил
         e.target.value = "";
     };
 
@@ -146,20 +146,19 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({isOpen, o
         setPhotos(prev => {
             const photoToRemove = prev.find(p => p.id === idToRemove);
             if (photoToRemove) {
-                URL.revokeObjectURL(photoToRemove.previewUrl); // Чистим память
+                URL.revokeObjectURL(photoToRemove.previewUrl);
             }
-            // Удаляем по ID, а не по индексу! Это решает проблему удаления
             return prev.filter(p => p.id !== idToRemove);
         });
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setPhoneError("");
 
         if (!contactPhoneNumber) return;
         if (contactPhoneNumber && !isValidPhoneNumber(contactPhoneNumber)) {
-            console.log("invalid");
-            setIsLoading(false);
+            setPhoneError("Некорректный формат номера телефона");
             return;
         }
         let finalModelName = "";
@@ -178,30 +177,32 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({isOpen, o
             finalModelName = selectedModel ? selectedModel.name : "Неизвестная модель";
         }
 
-        setIsLoading(true);
-        try {
-            await requestsApi.createRequest(token, {
-                deviceTypeId,
-                deviceModelId: isManualMode ? null : deviceModelId,
-                deviceModelName: finalModelName,
-                serviceId: initialData?.serviceId || null,
-                price: initialData?.price || null,
-                description,
-                deviceSerialNumber: serialNumber,
-                contactEmail,
-                contactName,
-                contactPhoneNumber,
-                photos: photos.map(p => p.file)
-            });
+        if (requestType === 1 && (!address || !scheduledTime)) {
+            alert("Для выездного ремонта заполните адрес и время");
+            return;
+        }
+        const isoScheduledTime = requestType === 1 && scheduledTime ? new Date(scheduledTime).toISOString() : null;
+        const result = await submit(token, {
+            type: requestType,
+            deviceTypeId,
+            deviceModelId: isManualMode ? null : deviceModelId,
+            deviceModelName: finalModelName,
+            description,
+            deviceSerialNumber: serialNumber,
+            contactEmail,
+            contactName,
+            contactPhoneNumber: contactPhoneNumber || "",
 
-            alert("Заявка успешно создана!");
+            fieldAddress: requestType === 1 ? address : null,
+            scheduledTime: isoScheduledTime,
+            promoCodeText: promoCode || null,
+
+            serviceIds: initialData?.serviceId ? [initialData.serviceId] : [],
+            photos: photos.map(p => p.file)
+        });
+        if (result != undefined) {
             onClose();
             resetForm();
-        } catch (error: any) {
-            console.error(error);
-            alert("Ошибка при создании заявки");
-        } finally {
-            setIsLoading(false);
         }
     };
 
@@ -221,10 +222,9 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({isOpen, o
 
                 <form onSubmit={handleSubmit} className="request-form">
 
-                    {/* БЛОК 1: УСТРОЙСТВО */}
                     <div className="form-section">
                         <div className="form-section">
-                            <label className="section-label">Контактные данные</label>
+                            <label className="section-label">* Контактные данные</label>
                             <div className="form-row">
                                 <input
                                     type="text"
@@ -232,10 +232,12 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({isOpen, o
                                     placeholder="Ваше Имя / Контактное лицо"
                                     value={contactName}
                                     onChange={e => setContactName(e.target.value)}
-                                    required
+                                    required={true}
                                 />
                             </div>
                             <div className="form-row">
+                                {/* Обертка для Email */}
+                                <div className="field-container">
                                     <input
                                         type="email"
                                         className="form-input full-width"
@@ -244,18 +246,70 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({isOpen, o
                                         onChange={e => setContactEmail(e.target.value)}
                                         required
                                     />
-                                    <PhoneInput required={true}
-                                                id="phone"
-                                                className="input-field"
-                                                country="BY"
-                                                placeholder="375291119900"
-                                                value={contactPhoneNumber}
-                                                onChange={setContactPhoneNumber}
+                                </div>
+
+                                <div className="field-container">
+                                    <PhoneInput
+                                        required={true}
+                                        id="phone"
+                                        className={`form-input ${phoneError ? 'input-error' : ''}`}
+                                        country="BY"
+                                        placeholder="375291119900"
+                                        value={contactPhoneNumber}
+                                        onChange={setContactPhoneNumber}
                                     />
+                                    {phoneError && (
+                                        <p className="input-error-text">{phoneError}</p>
+                                    )}
+                                </div>
                             </div>
                         </div>
 
-                        <label className="section-label">Устройство</label>
+                        <div className="form-section">
+                            <label className="section-label">* Где будем ремонтировать?</label>
+                            <div className="delivery-options"
+                                 style={{display: 'flex', gap: '15px', marginBottom: '15px'}}>
+                                <label style={{
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    color: '#1a1a1a'
+                                }}>
+                                    <input type="radio" checked={requestType === 0} onChange={() => setRequestType(0)}/>
+                                    В сервисном центре
+                                </label>
+                                <label style={{
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    color: '#1a1a1a'
+                                }}>
+                                    <input type="radio" checked={requestType === 1} onChange={() => setRequestType(1)}/>
+                                    Выездной ремонт
+                                </label>
+                            </div>
+
+                            {requestType === 1 && (
+                                <div className="form-row" style={{
+                                    backgroundColor: '#f0f9ff',
+                                    padding: '15px',
+                                    borderRadius: '8px',
+                                    marginBottom: '15px'
+                                }}>
+                                    <input type="text" className="form-input full-width"
+                                           placeholder="Укажите адрес (Улица, дом, квартира)" value={address}
+                                           onChange={e => setAddress(e.target.value)} required={requestType === 1}
+                                           style={{marginBottom: '10px'}}/>
+                                    <input type="datetime-local" className="form-input full-width" value={scheduledTime}
+                                           onChange={e => setScheduledTime(e.target.value)}
+                                           required={requestType === 1}/>
+                                </div>
+                            )}
+                        </div>
+
+                        <label className="section-label">* Устройство</label>
 
                         <div className="form-row">
                             <select
@@ -274,6 +328,7 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({isOpen, o
                                 value={manufacturerId}
                                 onChange={e => setManufacturerId(e.target.value)}
                                 disabled={!deviceTypeId || isManualMode || !!initialData?.manufacturerId}
+                                required={!isManualMode}
                             >
                                 <option value="">Производитель</option>
                                 {manufacturers.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
@@ -286,6 +341,7 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({isOpen, o
                                 value={deviceModelId}
                                 onChange={e => setDeviceModelId(e.target.value)}
                                 disabled={!manufacturerId || !!initialData?.deviceModelId}
+                                required={true}
                             >
                                 <option value="">Выберите модель</option>
                                 {models.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
@@ -296,11 +352,11 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({isOpen, o
                                 className="form-input full-width"
                                 placeholder="Введите название модели (например, Xiaomi Redmi 9C)"
                                 value={customModelName}
+                                required={true}
                                 onChange={e => setCustomModelName(e.target.value)}
                             />
                         )}
 
-                        {/* Галочка ручного ввода доступна, только если модель не задана жестко услугой */}
                         {!initialData?.deviceModelId && (
                             <div className="manual-mode-toggle">
                                 <label>
@@ -322,11 +378,11 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({isOpen, o
                             placeholder="Серийный номер / IMEI"
                             value={serialNumber}
                             onChange={e => setSerialNumber(e.target.value)}
+                            required={true}
                             style={{marginTop: '10px'}}
                         />
                     </div>
 
-                    {/* БЛОК 2: ОПИСАНИЕ И ФОТО */}
                     <div className="form-section">
                         <label className="section-label">* Проблема</label>
                         <textarea
@@ -337,6 +393,14 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({isOpen, o
                             value={description}
                             onChange={e => setDescription(e.target.value)}
                         />
+                        <div style={{marginTop: '10px'}} >
+                            <input type="text" className="form-input full-width" style={{textTransform: 'uppercase'}}
+                                   placeholder="Есть промокод? Введите здесь" value={promoCode}
+                                   onChange={e => setPromoCode(e.target.value)}/>
+                        </div>
+                    </div>
+                    <div className="form-section">
+
 
                         <div className="file-upload-area">
                             <label htmlFor="file-upload" className="file-upload-label">
@@ -355,7 +419,7 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({isOpen, o
                                 <div className="photos-grid">
                                     {photos.map((item) => (
                                         <div key={item.id} className="photo-preview-item">
-                                            <img src={item.previewUrl} alt="preview" />
+                                            <img src={item.previewUrl} alt="preview"/>
                                             {/* Кнопка удаления */}
                                             <button
                                                 type="button"
@@ -382,5 +446,6 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({isOpen, o
                 </form>
             </div>
         </div>
-    );
+    )
+        ;
 };
