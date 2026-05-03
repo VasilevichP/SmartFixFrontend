@@ -9,11 +9,11 @@ export const RegisterPage = () => {
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [phone, setPhone] = useState<string | undefined>(undefined);
     const [name, setName] = useState("");
+    const [phone, setPhone] = useState<string | undefined>(undefined);
+    const [phoneError, setPhoneError] = useState("");
 
     const [error, setError] = useState("");
-    const [phoneError, setPhoneError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async (e: any) => {

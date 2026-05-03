@@ -24,6 +24,9 @@ import {ManagerClientsPage} from "./pages/ManagerClientsPage.tsx";
 import {ManagerCreateClientPage} from "./pages/ManagerCreateClientPage.tsx";
 import {ManagerClientDetailsPage} from "./pages/ManagerClientDetailsPage.tsx";
 import {ManagerCreateRequestPage} from "./pages/ManagerCreateRequestPage.tsx";
+import {MasterRequestsPage} from "./pages/MasterRequestsPage.tsx";
+import {MasterRequestDetailsPage} from "./pages/MasterRequestDetailsPage.tsx";
+import {MasterProfilePage} from "./pages/MasterProfilePage.tsx";
 
 function App() {
 
@@ -61,6 +64,10 @@ function App() {
                 <Route path="/catalog/:id" element={<ClientServiceDetailsPage/>}/>
                 <Route path="/profile" element={<ClientProfilePage/>}/>
                 <Route path="/profile/requests/:id" element={<ClientRequestDetailsPage/>}/>
+
+                <Route path="/master/requests" element={<MasterRequestsPage/>}/>
+                <Route path="/master/requests/:id" element={<MasterRequestDetailsPage/>}/>
+                <Route path="/master/profile" element={<MasterProfilePage/>}/>
             </Routes>
         </BrowserRouter>
     );

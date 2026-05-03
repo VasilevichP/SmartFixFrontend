@@ -210,6 +210,16 @@ export const requestsApi = {
         });
         return response.data;
     },
+
+    async getMasterRequests(token: string, filterParams: RequestsFilterParams) {
+        const response = await api.get('/Requests/masterRequestsForMaster', {
+            params: filterParams,
+            withCredentials: true,
+            headers: {Authorization: `Bearer ${token}`}
+        });
+        return response.data;
+    },
+
     async getClientRequestsForManager(token: string, clientId: string) {
         const response = await api.get('/Requests/clientRequestsForManager', {
             params:{clientId},
@@ -257,19 +267,6 @@ export const requestsApi = {
         });
     },
 
-    async addService(token: string, id: string, serviceId?: string, serviceName?: string, servicePrice?: number) {
-        return api.patch(`/Requests/addService`, {requestId: id, serviceId, serviceName, servicePrice}, {
-            withCredentials: true,
-            headers: {Authorization: `Bearer ${token}`}
-        });
-    },
-
-    async removeService(token: string, id: string, serviceId: string) {
-        return api.patch(`/Requests/removeService`, {requestId: id, serviceId}, {
-            withCredentials: true,
-            headers: {Authorization: `Bearer ${token}`}
-        });
-    },
     async updateServices(token: string, id: string, services: { serviceId: string | null, name: string, price: number }[]) {
         return api.patch(`/Requests/services`, { requestId: id, services: services }, {
             withCredentials: true,

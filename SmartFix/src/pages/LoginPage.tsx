@@ -24,10 +24,12 @@ export const LoginPage = () => {
             localStorage.setItem('token', response.token);
             const payload = JSON.parse(atob(response.token.split('.')[1]));
             const role = payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]
-            if (role == 'Manager') {
+            if (role === 'Manager') {
                 navigate('/manager/requests');
-            } else if (role == 'Client') {
+            } else if (role === 'Client') {
                 navigate('/catalog');
+            }else if (role === 'Master') {
+                navigate('/master/requests');
             }
         } catch (error: any) {
             console.log(error);

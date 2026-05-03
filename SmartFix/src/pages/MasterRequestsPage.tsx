@@ -1,8 +1,7 @@
-import React, {useEffect, useState} from 'react';
-import ManagerHeader from "../components/ManagerHeader.tsx";
-import '../styles/ManagerPages.css';
-import {useNavigate} from "react-router-dom";
-import {type RequestDto, requestsApi, STATUS_NUMBER_MAP} from "../api/requestsApi.ts";
+import { useNavigate } from "react-router-dom";
+import {requestsApi, type RequestDto, STATUS_NUMBER_MAP} from "../api/requestsApi.ts";
+import React, {useEffect, useState} from "react";
+import MasterHeader from "../components/MasterHeader.tsx";
 
 const FilterIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
@@ -10,16 +9,13 @@ const FilterIcon = () => (
         <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
     </svg>
 );
-
-export const ManagerRequestsPage: React.FC = () => {
+export const MasterRequestsPage: React.FC = () => {
     const navigate = useNavigate();
 
-    // --- STATE ---
     const [requests, setRequests] = useState<RequestDto[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [showFilters, setShowFilters] = useState(true);
 
-    // --- ФИЛЬТРЫ ---
     const [client, setClient] = useState("");
     const [device, setDevice] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
@@ -35,7 +31,7 @@ export const ManagerRequestsPage: React.FC = () => {
 
         try {
             setIsLoading(true);
-            const data = await requestsApi.getAllRequestsForManager(token, {
+            const data = await requestsApi.getMasterRequests(token, {
                 client: client,
                 device: device,
                 status: statusFilter !== "all" ? parseInt(statusFilter) : undefined,
@@ -71,7 +67,7 @@ export const ManagerRequestsPage: React.FC = () => {
 
     return (
         <div>
-            <ManagerHeader/>
+            <MasterHeader />
             <div className="page-container">
                 <div className="page-wrapper">
 
@@ -148,9 +144,6 @@ export const ManagerRequestsPage: React.FC = () => {
                                 </button>
                                 <h1 className="page-title">Заявки</h1>
                             </div>
-                            <button className="add-button" onClick={() => navigate('/manager/requests/create')}>
-                                <span>+</span> Создать заявку
-                            </button>
                         </div>
 
                         <div className="table-card">
@@ -164,7 +157,6 @@ export const ManagerRequestsPage: React.FC = () => {
                                             <th>Клиент</th>
                                             <th>Устройство</th>
                                             <th>Дата</th>
-                                            <th>Исполнитель</th>
                                             <th>Статус</th>
                                         </tr>
                                         </thead>
@@ -172,13 +164,12 @@ export const ManagerRequestsPage: React.FC = () => {
                                         {requests.length > 0 ? (
                                             requests.map((request) => (
                                                 <tr key={request.id}
-                                                    onClick={() => navigate(`/manager/requests/${request.id}`)}>
+                                                    onClick={() => navigate(`/master/requests/${request.id}`)}>
                                                     <td style={{fontWeight: 500}}>{request.clientName}</td>
                                                     <td>
                                                         <div>{request.deviceModelName}</div>
                                                     </td>
                                                     <td>{new Date(request.createdAt).toLocaleDateString()}</td>
-                                                    <td>{request.specialistName}</td>
                                                     <td>
                                                 <span className={`status-badge ${STATUS_NUMBER_MAP[request.status].class}`}>
                                                     {STATUS_NUMBER_MAP[request.status].label}

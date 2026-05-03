@@ -1,8 +1,9 @@
 import {Link, useNavigate, useParams} from "react-router-dom";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useApi} from "../hooks/useApi.ts";
 import {mastersApi} from "../api/mastersApi.ts";
 import ManagerHeader from "../components/ManagerHeader.tsx";
+import PhoneInput, {isValidPhoneNumber} from "react-phone-number-input/input";
 
 export const ManagerMasterDetailsPage: React.FC = () => {
     const {id} = useParams<{ id: string }>();
@@ -15,6 +16,7 @@ export const ManagerMasterDetailsPage: React.FC = () => {
         phoneNumber: '',
         activeRequestsCount: 0
     });
+    const [phoneError, setPhoneError] = useState("");
 
     const [updateMaster, {isLoading: isSaving}] = useApi(mastersApi.updateMaster);
     const [deleteMaster] = useApi(mastersApi.deleteMaster);
@@ -45,10 +47,17 @@ export const ManagerMasterDetailsPage: React.FC = () => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData(prev => ({...prev, [e.target.id]: e.target.value}));
     };
+    const handlePhoneChange = (value?: string) => {
+        setFormData(prev => ({...prev, phone: value || ''}));
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
+        setPhoneError("");
+        if (formData.phoneNumber && !isValidPhoneNumber(formData.phoneNumber)) {
+            setPhoneError("Некорректный формат номера телефона");
+            return;
+        }
         const command = {
             id: id!,
             name: formData.name,
@@ -96,8 +105,17 @@ export const ManagerMasterDetailsPage: React.FC = () => {
 
                             <div className="input-group">
                                 <label htmlFor="phoneNumber" className="form-label">Телефон</label>
-                                <input type="text" id="phoneNumber" className="form-input" value={formData.phoneNumber}
-                                       onChange={handleChange} required/>
+                                <PhoneInput
+                                    country="BY"
+                                    value={formData.phoneNumber}
+                                    onChange={handlePhoneChange}
+                                    className="form-input"
+                                    required={true}
+                                    placeholder="3751115500"
+                                />
+                                {phoneError &&
+                                    <p className="input-error-text">{phoneError}</p>
+                                }
                             </div>
 
                             <div className="input-group">

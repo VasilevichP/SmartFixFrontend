@@ -59,6 +59,14 @@ export const mastersApi = {
         return response.data;
     },
 
+    async getMasterProfile(token: string): Promise<MasterDetailsDto> {
+        const response = await api.get(`/Masters/profile`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data;
+    },
+
+
     async createMaster(token: string, data: CreateMasterCommand) {
         return api.post('/Masters/create', data, {
             headers: { Authorization: `Bearer ${token}` }
@@ -70,6 +78,7 @@ export const mastersApi = {
             headers: { Authorization: `Bearer ${token}` }
         });
     },
+
 
     async deleteMaster(token: string, id: string) {
         return api.patch(`/Masters/delete`, {id}, {
