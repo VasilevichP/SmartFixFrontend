@@ -12,6 +12,7 @@ import {CancelRequestModal} from "../components/CancelRequestModal.tsx";
 import {CustomServiceModal} from "../components/CustomServiceModal.tsx";
 import {isValidPhoneNumber} from "react-phone-number-input/input";
 import PhoneInput from "react-phone-number-input/input";
+import {DownloadDocumentsModal} from "../components/DownloadDocumentsModal.tsx";
 
 const formatDateTimeLocal = (dateString: string | null) => {
     if (!dateString) return "";
@@ -57,6 +58,9 @@ export const ManagerRequestDetailsPage: React.FC = () => {
 
     const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
     const [isCustomServiceModalOpen, setIsCustomServiceModalOpen] = useState(false);
+
+    const[isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
+    const [isDownloadingDocs, setIsDownloadingDocs] = useState(false);
 
     const [apiUpdateServices, {isLoading: isUpdatingServices}] = useApi(requestsApi.updateServices);
     const [apiUpdateDiagnostics, {isLoading: isUpdatingDiagnostics}] = useApi(requestsApi.updateDiagnosticsResult);
@@ -235,10 +239,36 @@ export const ManagerRequestDetailsPage: React.FC = () => {
         await loadData();
     };
 
+    const handleBatchDownload = async (selected: { acceptance: boolean; act: boolean; warranty: boolean }) => {
+        if (!id) return;
+        setIsDownloadingDocs(true);
+
+        try {
+            if (selected.acceptance) {
+                await requestsApi.downloadAcceptancePdf(token, id);
+                await new Promise(r => setTimeout(r, 250)); // Задержка 500мс для браузера
+            }
+            if (selected.act) {
+                await requestsApi.downloadActPdf(token, id);
+                await new Promise(r => setTimeout(r, 250));
+            }
+            if (selected.warranty) {
+                await requestsApi.downloadWarrantyPdf(token, id);
+            }
+
+            setIsDownloadModalOpen(false);
+        } catch (error) {
+            console.error(error);
+            alert("Произошла ошибка при генерации документа");
+        } finally {
+            setIsDownloadingDocs(false);
+        }
+    };
+
     if (isLoading) return <div className="loading-container">Загрузка...</div>;
     if (!request) return <div className="error-container">Заявка не найдена</div>;
 
-    const isLocked = request.status === 6 || request.status === 7; // Готова, Закрыта или Отменена
+    const isLocked = request.status === 6 || request.status === 7;
 
     const BASE_IMG_URL = "http://localhost:5251/";
 
@@ -257,6 +287,12 @@ export const ManagerRequestDetailsPage: React.FC = () => {
                             </span>
                         </div>
                     </div>
+                    <button
+                        className="action-button secondary-button"
+                        onClick={() => setIsDownloadModalOpen(true)}
+                    >
+                        Печать документов
+                    </button>
                 </div>
 
                 <div className="summary-grid">
@@ -782,6 +818,14 @@ export const ManagerRequestDetailsPage: React.FC = () => {
                 isOpen={isCustomServiceModalOpen}
                 onClose={() => setIsCustomServiceModalOpen(false)}
                 onConfirm={handleAddCustomService}
+            />
+
+            <DownloadDocumentsModal
+                isOpen={isDownloadModalOpen}
+                onClose={() => setIsDownloadModalOpen(false)}
+                onDownload={handleBatchDownload}
+                requestStatus={request.status}
+                isDownloading={isDownloadingDocs}
             />
         </div>
     );

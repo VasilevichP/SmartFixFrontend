@@ -160,7 +160,7 @@ export const requestsApi = {
         if (data.type === 1) {
             if (data.fieldAddress) formData.append('fieldAddress', data.fieldAddress);
             if (data.scheduledTime) formData.append('scheduledTime', data.scheduledTime);
-        } else if(data.type === 2){
+        } else if (data.type === 2) {
             if (data.scheduledTime) formData.append('scheduledTime', data.scheduledTime);
         }
 
@@ -188,7 +188,7 @@ export const requestsApi = {
         console.log(data);
         return api.post('/Requests/createByManager', data, {
             withCredentials: true,
-            headers: { Authorization: `Bearer ${token}` }
+            headers: {Authorization: `Bearer ${token}`}
         });
     },
 
@@ -222,7 +222,7 @@ export const requestsApi = {
 
     async getClientRequestsForManager(token: string, clientId: string) {
         const response = await api.get('/Requests/clientRequestsForManager', {
-            params:{clientId},
+            params: {clientId},
             withCredentials: true,
             headers: {Authorization: `Bearer ${token}`}
         });
@@ -231,7 +231,7 @@ export const requestsApi = {
 
     async getClosedClientRequests(token: string, clientId: string) {
         const response = await api.get('/Requests/closedClientRequests', {
-            params:{clientId},
+            params: {clientId},
             withCredentials: true,
             headers: {Authorization: `Bearer ${token}`}
         });
@@ -267,10 +267,14 @@ export const requestsApi = {
         });
     },
 
-    async updateServices(token: string, id: string, services: { serviceId: string | null, name: string, price: number }[]) {
-        return api.patch(`/Requests/services`, { requestId: id, services: services }, {
+    async updateServices(token: string, id: string, services: {
+        serviceId: string | null,
+        name: string,
+        price: number
+    }[]) {
+        return api.patch(`/Requests/services`, {requestId: id, services: services}, {
             withCredentials: true,
-            headers: { Authorization: `Bearer ${token}` }
+            headers: {Authorization: `Bearer ${token}`}
         });
     },
     async updateAcceptance(token: string, id: string, appearance: string, devicePackage: string) {
@@ -322,14 +326,52 @@ export const requestsApi = {
     },
 
     async approveRequest(token: string, id: string) {
-        return api.patch(`/Requests/approve`, {id}, { headers: { Authorization: `Bearer ${token}` } });
+        return api.patch(`/Requests/approve`, {id}, {
+            withCredentials: true,
+            headers: {Authorization: `Bearer ${token}`}
+        });
     },
 
     async rejectRequest(token: string, id: string) {
-        return api.patch(`/Requests/reject`, {id}, { headers: { Authorization: `Bearer ${token}` } });
+        return api.patch(`/Requests/reject`, {id}, {
+            withCredentials: true,
+            headers: {Authorization: `Bearer ${token}`}
+        });
     },
 
     async leaveReview(token: string, requestId: string, rating: number, comment: string) {
-        return api.post(`/Requests/leaveReview`, { requestId, rating, comment }, { headers: { Authorization: `Bearer ${token}` } });
+        return api.post(`/Requests/leaveReview`, {requestId, rating, comment}, {
+            withCredentials: true,
+            headers: {Authorization: `Bearer ${token}`}
+        });
+    },
+
+    async downloadAcceptancePdf(token: string, requestId: string) {
+        const response = await api.get(`/Requests/${requestId}/acceptanceAct`, {
+            headers: {Authorization: `Bearer ${token}`},
+            responseType: 'blob'
+        });
+        const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+        window.open(url, "_blank");
+    },
+
+    async downloadActPdf(token: string, requestId: string) {
+        const response = await api.get(`/Requests/${requestId}/completionAct`, {
+            headers: { Authorization: `Bearer ${token}` },
+            responseType: 'blob'
+        });
+
+        const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+        window.open(url, "_blank");
+    },
+
+    async downloadWarrantyPdf(token: string, requestId: string) {
+        const response = await api.get(`/Requests/${requestId}/warrantyCard`, {
+            headers: { Authorization: `Bearer ${token}` },
+            responseType: 'blob'
+        });
+
+        const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+        window.open(url, "_blank");
     }
 };

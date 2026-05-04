@@ -5,6 +5,7 @@ import {servicesApi, type ServiceForRequest} from "../api/servicesApi";
 import {useApi} from "../hooks/useApi";
 import MasterHeader from "../components/MasterHeader.tsx";
 import {CustomServiceModal} from "../components/CustomServiceModal.tsx";
+import {DownloadDocumentsModal} from "../components/DownloadDocumentsModal.tsx";
 
 export const MasterRequestDetailsPage: React.FC = () => {
     const {id} = useParams<{ id: string }>();
@@ -27,6 +28,9 @@ export const MasterRequestDetailsPage: React.FC = () => {
 
     const [selectedCatalogServiceId, setSelectedCatalogServiceId] = useState("");
     const [isCustomServiceModalOpen, setIsCustomServiceModalOpen] = useState(false);
+
+    const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
+    const [isDownloadingDocs, setIsDownloadingDocs] = useState(false);
 
     const [apiUpdateDiagnostics] = useApi(requestsApi.updateDiagnosticsResult);
     const [apiUpdateStatus] = useApi(requestsApi.updateStatus);
@@ -98,7 +102,31 @@ export const MasterRequestDetailsPage: React.FC = () => {
         await apiUpdateServices(token, id, payload);
         fetchData();
     };
+    const handleBatchDownload = async (selected: { acceptance: boolean; act: boolean; warranty: boolean }) => {
+        if (!id) return;
+        setIsDownloadingDocs(true);
 
+        try {
+            if (selected.acceptance) {
+                await requestsApi.downloadAcceptancePdf(token, id);
+                await new Promise(r => setTimeout(r, 250)); // Задержка 500мс для браузера
+            }
+            if (selected.act) {
+                await requestsApi.downloadActPdf(token, id);
+                await new Promise(r => setTimeout(r, 250));
+            }
+            if (selected.warranty) {
+                await requestsApi.downloadWarrantyPdf(token, id);
+            }
+
+            setIsDownloadModalOpen(false);
+        } catch (error) {
+            console.error(error);
+            alert("Произошла ошибка при генерации документа");
+        } finally {
+            setIsDownloadingDocs(false);
+        }
+    };
     if (isLoading) return <div className="loading-container">Загрузка...</div>;
     if (!request) return <div className="error-container">Заявка не найдена</div>;
 
@@ -114,6 +142,12 @@ export const MasterRequestDetailsPage: React.FC = () => {
                         <Link to="/master/requests" className="back-link">&larr; К списку задач</Link>
                         <h1 className="details-title">Заявка #{request.id.substring(0, 8)}</h1>
                     </div>
+                    <button
+                        className="action-button secondary-button"
+                        onClick={() => setIsDownloadModalOpen(true)}
+                    >
+                        Печать документов
+                    </button>
                 </div>
 
                 <div className="summary-grid">
@@ -279,6 +313,13 @@ export const MasterRequestDetailsPage: React.FC = () => {
             <CustomServiceModal isOpen={isCustomServiceModalOpen}
                                 onClose={() => setIsCustomServiceModalOpen(false)}
                                 onConfirm={handleAddCustomService}/>
+            <DownloadDocumentsModal
+                isOpen={isDownloadModalOpen}
+                onClose={() => setIsDownloadModalOpen(false)}
+                onDownload={handleBatchDownload}
+                requestStatus={request.status}
+                isDownloading={isDownloadingDocs}
+            />
         </div>
     );
 };
