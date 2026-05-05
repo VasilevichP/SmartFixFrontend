@@ -1,246 +1,165 @@
-import React, {useEffect, useState} from 'react';
-import {useNavigate} from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ManagerHeader from "../components/ManagerHeader.tsx";
 import '../styles/StatisticsPage.css';
-
-// Chart.js
 import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend,
-    ArcElement,
-} from 'chart.js';
-import {Line, Doughnut, Bar, Pie} from 'react-chartjs-2';
-
-// API и Утилиты
-import {
-    statisticsApi,
-    type GeneralStatsDto,
-    type ServicesStatsDto,
-    type SpecialistsStatsDto,
-    type ClientsStatsDto
-} from '../api/statisticsApi';
-import {STATUS_NAME_MAP} from "../api/requestsApi.ts";
-import {useApi} from "../hooks/useApi.ts";
-import {useToast} from "../components/ToastContext.tsx";
-
-// Регистрация компонентов графиков
-ChartJS.register(
-    CategoryScale, LinearScale, PointElement, LineElement,
+    Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement,
     BarElement, Title, Tooltip, Legend, ArcElement
-);
+} from 'chart.js';
+import { Line, Doughnut, Bar, Pie } from 'react-chartjs-2';
+import { statisticsApi, type RequestsStatsDto, type ClientsStatsDto, type MastersStatsDto } from '../api/statisticsApi.ts';
+import { useApi } from "../hooks/useApi.ts";
+import { useToast } from "../components/ToastContext.tsx";
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, ArcElement);
+
+const STATUS_TRANSLATION: Record<string, string> = {
+    'New': 'Новая', 'Accepted': 'Принята', 'Diagnostics': 'На диагностике',
+    'Pending': 'На согласовании', 'InProgress': 'В ремонте', 'Ready': 'Готова',
+    'Closed': 'Закрыта', 'Cancelled': 'Отменена'
+};
+
+const TYPE_TRANSLATION: Record<string, string> = {
+    'InService': 'В сервисе', 'Field': 'Выездной', 'Warranty': 'Гарантийный'
+};
+
+const CHART_COLORS =['#3b82f6', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#0ea5e9', '#ec4899', '#84cc16'];
 
 export const ManagerStatisticsPage: React.FC = () => {
     const navigate = useNavigate();
-
-    // --- STATE: ФИЛЬТРЫ ---
-    const [period, setPeriod] = useState("month");
-    const [customStart, setCustomStart] = useState("");
-    const [customEnd, setCustomEnd] = useState("");
-
-    // --- STATE: ВКЛАДКИ ---
-    const [activeTab, setActiveTab] = useState<'general' | 'services' | 'specialists' | 'clients'>('general');
-
-    // --- STATE: ДАННЫЕ (Храним отдельно, чтобы не перетирать при переключении) ---
-    const [generalData, setGeneralData] = useState<GeneralStatsDto | null>(null);
-    const [servicesData, setServicesData] = useState<ServicesStatsDto | null>(null);
-    const [specData, setSpecData] = useState<SpecialistsStatsDto | null>(null);
-    const [clientsData, setClientsData] = useState<ClientsStatsDto | null>(null);
-
     const { showToast } = useToast();
     const token = localStorage.getItem('token') || '';
-    // --- ЗАГРУЗКА ДАННЫХ ---
 
-    const getDaysDifference = (start: string, end: string): number => {
-        const date1 = new Date(start);
-        const date2 = new Date(end);
+    const [period, setPeriod] = useState("week");
+    const[customStart, setCustomStart] = useState("");
+    const [customEnd, setCustomEnd] = useState("");
+    const [activeTab, setActiveTab] = useState<'requests' | 'clients' | 'masters'>('requests');
 
-        // Разница в миллисекундах
-        const diffTime = Math.abs(date2.getTime() - date1.getTime());
-        // Переводим в дни (1000мс * 60с * 60м * 24ч)
-        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    };
+    const [reqData, setReqData] = useState<RequestsStatsDto | null>(null);
+    const [clientsData, setClientsData] = useState<ClientsStatsDto | null>(null);
+    const [mastersData, setMastersData] = useState<MastersStatsDto | null>(null);
+    const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+    const getDaysDifference = (start: string, end: string) => Math.ceil(Math.abs(new Date(end).getTime() - new Date(start).getTime()) / (1000 * 60 * 60 * 24));
+
     const fetchTabData = async () => {
-        if (!token) {
-            navigate('/');
-            return;
-        }
-        console.log('in func');
-
-        if (period === 'custom' && (!(customStart && customEnd))) {
-            return;
-        }
+        if (!token) { navigate('/'); return; }
+        if (period === 'custom' && (!customStart || !customEnd)) return;
 
         const p = period;
         const f = period === 'custom' ? customStart : undefined;
         const t = period === 'custom' ? customEnd : undefined;
 
         switch (activeTab) {
-            case 'general':
-                console.log("in general");
-                const gData = await statisticsApi.getGeneralStatistics(token, p, f, t);
-                setGeneralData(gData);
-                break;
-            case 'services':
-                console.log("in services");
-                const sData = await statisticsApi.getServicesStatistics(token, p, f, t);
-                setServicesData(sData);
-                break;
-            case 'specialists':
-                console.log("in specialists");
-                const spData = await statisticsApi.getSpecialistsStatistics(token, p, f, t);
-                setSpecData(spData);
+            case 'requests':
+                setReqData(await statisticsApi.getRequestsStats(token, p, f, t));
                 break;
             case 'clients':
-                console.log("in clients");
-                const cData = await statisticsApi.getClientsStatistics(token, p, f, t);
-                setClientsData(cData);
+                setClientsData(await statisticsApi.getClientsStats(token, p, f, t));
+                break;
+            case 'masters':
+                setMastersData(await statisticsApi.getMastersStats(token, p, f, t));
                 break;
         }
     };
 
-    const [loadData, {isLoading}] = useApi(fetchTabData, false);
+    const [loadData, { isLoading }] = useApi(fetchTabData, false);
 
     useEffect(() => {
-        if (period !== 'custom' || (customStart || customEnd)) {
+        if (period !== 'custom' || (customStart && customEnd)) {
             loadData();
         }
-    }, [activeTab, period]);
+    },[activeTab, period]);
 
     const handleApplyCustomDates = () => {
-        if (!customStart || !customEnd) {
-            showToast("Пожалуйста, выберите обе даты", "info");
-            return;
-        }
-
-        if (new Date(customEnd) < new Date(customStart)) {
-            showToast("Конечная дата не может быть раньше начальной", "error");
-            return;
-        }
-
-        const daysDiff = getDaysDifference(customStart, customEnd);
-        if (daysDiff > 366) {
-            showToast("Период отчета не может превышать 1 год (366 дней). Пожалуйста, уменьшите диапазон.", "error");
-            return;
-        }
-
+        if (!customStart || !customEnd) return showToast("Выберите обе даты", "info");
+        if (new Date(customEnd) < new Date(customStart)) return showToast("Конечная дата не может быть раньше начальной", "error");
+        if (getDaysDifference(customStart, customEnd) > 366) return showToast("Период не может превышать 1 год.", "error");
         loadData();
     };
 
-    // --- ПОДГОТОВКА ДАННЫХ ДЛЯ ГРАФИКОВ ---
-
-    // 1. Линейный график (Поступление заявок)
-    const getRequestsDynamicsChart = () => {
-        if (!generalData) return {labels: [], datasets: []};
+    const getDynamicsChart = () => {
+        if (!reqData) return { labels: [], datasets:[] };
+        const sortedDates = Object.keys(reqData.requestsByDay).sort();
         return {
-            labels: generalData.requestsDynamics.map(d => d.date),
-            datasets: [{
+            labels: sortedDates,
+            datasets:[{
                 label: 'Поступившие заявки',
-                data: generalData.requestsDynamics.map(d => d.value),
-                borderColor: 'rgb(59, 130, 246)',
-                backgroundColor: 'rgba(59, 130, 246, 0.5)',
-                tension: 0.3,
-                ticks: {
-                    stepsize: 1
-                },
-            }],
+                data: sortedDates.map(date => reqData.requestsByDay[date]),
+                borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.5)', tension: 0.3
+            }]
         };
     };
-    const lineChartOptions = {
-        maintainAspectRatio: false,
-        responsive: true,
-        scales: {
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    stepSize: 1, // <--- ЭТО РЕШАЕТ ПРОБЛЕМУ (шаг всегда целый)
-                    precision: 0 // Дополнительная гарантия отсутствия дробей
-                }
-            },
-            x: {
-                ticks: {
-                    autoSkip: true, // Автоматически пропускать подписи, если тесно
-                    maxTicksLimit: 20, // Максимум 20 дат на оси, иначе проредит (например, покажет каждую 2-ю)
-                    maxRotation: 0, // Чтобы текст не наклонялся (опционально)
-                },
-                grid: {
-                    display: false // Можно скрыть вертикальную сетку для чистоты
-                }
-            }
-        },
-        plugins: {
-            legend: {position: 'top' as const},
-            tooltip: {mode: 'index' as const, intersect: false}
-        }
-    };
 
-    // 2. Пончик (Статусы с переводом)
     const getStatusChart = () => {
-        if (!generalData) return {labels: [], datasets: []};
+        if (!reqData) return { labels: [], datasets:[] };
+        const keys = Object.keys(reqData.requestsByStatus);
         return {
-            labels: generalData.statusDistribution.map(d => STATUS_NAME_MAP[d.label].label), // Перевод тут
-            datasets: [{
-                data: generalData.statusDistribution.map(d => d.value),
-                backgroundColor: ['#3b82f6', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#6b7280'],
-            }],
+            labels: keys.map(k => STATUS_TRANSLATION[k] || k),
+            datasets: [{ data: keys.map(k => reqData.requestsByStatus[k]), backgroundColor: CHART_COLORS }]
         };
     };
 
-    // 3. Пирог (Выручка по типам)
-    const getRevenueByDeviceChart = () => {
-        if (!servicesData) return {labels: [], datasets: []};
+    const getTypeChart = () => {
+        if (!reqData) return { labels:[], datasets:[] };
+        const keys = Object.keys(reqData.requestsByType);
         return {
-            labels: servicesData.revenueByDeviceType.map(d => d.label),
-            datasets: [{
-                label: 'Выручка (руб.)',
-                data: servicesData.revenueByDeviceType.map(d => d.value),
-                backgroundColor: ['#0ea5e9', '#6366f1', '#ec4899', '#84cc16'],
-            }]
+            labels: keys.map(k => TYPE_TRANSLATION[k] || k),
+            datasets:[{ data: keys.map(k => reqData.requestsByType[k]), backgroundColor:['#8b5cf6', '#ec4899', '#f59e0b'] }]
         };
     };
 
-    // 4. Бар (Топ услуг)
-    const getTopServicesChart = () => {
-        if (!servicesData) return {labels: [], datasets: []};
+    const getDeviceTypeChart = () => {
+        if (!reqData) return { labels: [], datasets:[] };
         return {
-            labels: servicesData.topServices.map(d => d.label),
-            datasets: [{
-                label: 'Кол-во заявок',
-                data: servicesData.topServices.map(d => d.value),
-                backgroundColor: '#3b82f6',
-            }]
+            labels: Object.keys(reqData.requestsByDeviceType),
+            datasets:[{ label: 'Кол-во заявок', data: Object.values(reqData.requestsByDeviceType), backgroundColor: '#0ea5e9' }]
         };
     };
-    const topServicesChartOptions = {
-        indexAxis: 'y' as const, // Горизонтальный режим
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-            x: { // В горизонтальном графике X — это ось значений!
-                beginAtZero: true,
-                ticks: {
-                    stepSize: 1,   // Шаг 1 (целые числа)
-                    precision: 0
-                },
-                title: {
-                    display: true,
-                    text: 'Кол-во заявок'
-                }
-            },
-            y: { // Ось с названиями услуг
-                ticks: {
-                    autoSkip: false // Всегда показывать все названия услуг (не скрывать)
-                }
-            }
-        },
-        plugins: {
-            legend: {display: false} // Скрываем легенду, т.к. цвет один
+
+    const getRatingDistributionChart = () => {
+        if (!clientsData) return { labels: [], datasets:[] };
+        // Выводим от 1 до 5 звезд
+        const labels = ['1 звезда', '2 звезды', '3 звезды', '4 звезды', '5 звезд'];
+        const data = [1, 2, 3, 4, 5].map(star => clientsData.ratingDistribution[star.toString()] || 0);
+        return {
+            labels,
+            datasets:[{ label: 'Кол-во оценок', data, backgroundColor: '#f59e0b' }]
+        };
+    };
+
+    const getRevenueByMasterChart = () => {
+        if (!mastersData) return { labels: [], datasets:[] };
+        return {
+            labels: Object.keys(mastersData.revenueByMaster),
+            datasets:[{ label: 'Выручка (руб.)', data: Object.values(mastersData.revenueByMaster), backgroundColor: '#10b981' }]
+        };
+    };
+
+    const getRejectionRateChart = () => {
+        if (!mastersData) return { labels: [], datasets:[] };
+        return {
+            labels: Object.keys(mastersData.rejectionRateByMaster),
+            datasets:[{ label: '% отказов', data: Object.values(mastersData.rejectionRateByMaster), backgroundColor: '#ef4444' }]
+        };
+    };
+
+    // Общие опции для Bar Charts
+    const defaultBarOptions = {
+        responsive: true, maintainAspectRatio: false,
+        scales: { y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } } },
+        plugins: { legend: { display: false } }
+    };
+
+    const handleDownloadPdf = async () => {
+        setIsDownloadingPdf(true);
+        try {
+            const f = period === 'custom' ? customStart : undefined;
+            const t = period === 'custom' ? customEnd : undefined;
+            await statisticsApi.downloadReportPdf(token, period, f, t);
+        } catch (error) {
+            showToast("Ошибка при формировании отчета", "error");
+        } finally {
+            setIsDownloadingPdf(false);
         }
     };
 
@@ -249,187 +168,161 @@ export const ManagerStatisticsPage: React.FC = () => {
             <ManagerHeader/>
             <div className="statistics-page-container">
 
-                {/* --- HEADER --- */}
                 <div className="page-header">
                     <h1 className="page-title">Аналитика</h1>
                     <div className="page-header-actions">
-
                         <div className="period-selector-group">
                             <div className="period-selector">
                                 <label htmlFor="period" className="toolbar-label">Период:</label>
-                                <select
-                                    id="period" className="toolbar-select"
-                                    value={period} onChange={(e) => setPeriod(e.target.value)}
-                                >
-                                    <option value="month">Последние 30 дней</option>
+                                <select id="period" className="toolbar-select" value={period} onChange={(e) => setPeriod(e.target.value)}>
                                     <option value="week">Последние 7 дней</option>
+                                    <option value="month">Последние 30 дней</option>
+                                    <option value="year">За год</option>
                                     <option value="custom">Выбрать даты...</option>
                                 </select>
                             </div>
-
                             {period === 'custom' && (
                                 <div className="custom-date-inputs">
-                                    <input type="date" className="date-input" value={customStart}
-                                           onChange={(e) => setCustomStart(e.target.value)}/>
+                                    <input type="date" className="date-input" value={customStart} onChange={(e) => setCustomStart(e.target.value)}/>
                                     <span style={{color: '#666'}}>—</span>
-                                    <input type="date" className="date-input" value={customEnd}
-                                           onChange={(e) => setCustomEnd(e.target.value)}/>
+                                    <input type="date" className="date-input" value={customEnd} onChange={(e) => setCustomEnd(e.target.value)}/>
                                     <button className="apply-dates-btn" onClick={handleApplyCustomDates}>ОК</button>
                                 </div>
                             )}
                         </div>
-
-                        <button className="download-button" onClick={() => window.print()}>
-                            Печать
-                        </button>
+                        <button className="secondary-button"
+                                onClick={handleDownloadPdf}
+                                disabled={isDownloadingPdf}>
+                            {isDownloadingPdf ? (
+                                <span>Формирование...</span>
+                            ) : (
+                                <span>Скачать отчет</span>
+                            )}</button>
                     </div>
                 </div>
 
-                {/* --- TABS --- */}
                 <div className="tabs-container">
-                    <button className={`tab-button ${activeTab === 'general' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('general')}>
-                        Обзор
+                    <button className={`tab-button ${activeTab === 'requests' ? 'active' : ''}`} onClick={() => setActiveTab('requests')}>
+                        Заявки и Финансы
                     </button>
-                    <button className={`tab-button ${activeTab === 'services' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('services')}>
-                        Услуги и Финансы
+                    <button className={`tab-button ${activeTab === 'clients' ? 'active' : ''}`} onClick={() => setActiveTab('clients')}>
+                        Клиенты и Маркетинг
                     </button>
-                    <button className={`tab-button ${activeTab === 'specialists' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('specialists')}>
-                        Специалисты
-                    </button>
-                    <button className={`tab-button ${activeTab === 'clients' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('clients')}>
-                        Клиенты
+                    <button className={`tab-button ${activeTab === 'masters' ? 'active' : ''}`} onClick={() => setActiveTab('masters')}>
+                        Мастера (Исполнители)
                     </button>
                 </div>
 
-                {/* --- CONTENT --- */}
                 <div className="tab-content">
-                    {isLoading && <div style={{textAlign: 'center', padding: '40px',color:'#2c3e50'}}>Загрузка данных...</div>}
+                    {isLoading && <div style={{textAlign: 'center', padding: '40px', color: '#666'}}>Загрузка данных...</div>}
 
-                    {/* 1. ОБЗОР */}
-                    {!isLoading && activeTab === 'general' && generalData && (
+                    {/* --- 1. ЗАЯВКИ И ФИНАНСЫ --- */}
+                    {!isLoading && activeTab === 'requests' && reqData && (
                         <div>
                             <div className="kpi-grid">
                                 <div className="kpi-card">
-                                    <h3 className="kpi-title">Новых заявок</h3>
-                                    <p className="kpi-value">{generalData.newRequestsCount}</p>
+                                    <h3 className="kpi-title">Поступило заявок</h3>
+                                    <p className="kpi-value">{reqData.totalRequests}</p>
                                 </div>
                                 <div className="kpi-card">
-                                    <h3 className="kpi-title">Закрыто заявок</h3>
-                                    <p className="kpi-value">{generalData.closedRequestsCount}</p>
+                                    <h3 className="kpi-title">Закрыто (Успешно)</h3>
+                                    <p className="kpi-value" style={{color: '#16a34a'}}>{reqData.closedRequests}</p>
                                 </div>
                                 <div className="kpi-card">
-                                    <h3 className="kpi-title">Среднее время ремонта (часы)</h3>
-                                    <p className="kpi-value">{generalData.avgRepairTimeHours}</p>
+                                    <h3 className="kpi-title">Отменено</h3>
+                                    <p className="kpi-value" style={{color: '#dc2626'}}>{reqData.cancelledRequests}</p>
                                 </div>
-                                <div className="kpi-card">
-                                    <h3 className="kpi-title">Рейтинг (На текущий момент)</h3>
-                                    <p className="kpi-value"
-                                       style={{color: '#f59e0b'}}>★ {generalData.averageRating}</p>
-                                </div>
-                            </div>
-
-                            <div className="charts-grid">
-                                <div className="chart-card">
-                                    <h3 className="card-title">Динамика поступления</h3>
-                                    <div style={{height: '300px'}}>
-                                        <Line data={getRequestsDynamicsChart()} options={lineChartOptions}/>
-                                    </div>
-                                </div>
-                                <div className="chart-card">
-                                    <h3 className="card-title">Статусы заявок (На текущий момент)</h3>
-                                    <div style={{height: '300px', display: 'flex', justifyContent: 'center'}}>
-                                        <Doughnut data={getStatusChart()} options={{maintainAspectRatio: false}}/>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* 2. УСЛУГИ И ФИНАНСЫ */}
-                    {!isLoading && activeTab === 'services' && servicesData && (
-                        <div>
-                            <div className="kpi-grid">
                                 <div className="kpi-card">
                                     <h3 className="kpi-title">Общая выручка</h3>
-                                    <p className="kpi-value" style={{color: '#10b981'}}>
-                                        {servicesData.totalRevenue.toLocaleString()} руб.
-                                    </p>
+                                    <p className="kpi-value" style={{color: '#2563eb'}}>{reqData.totalRevenue.toLocaleString()} руб.</p>
+                                </div>
+                                <div className="kpi-card">
+                                    <h3 className="kpi-title">Средний чек</h3>
+                                    <p className="kpi-value">{reqData.averageCheck.toFixed(2)} руб.</p>
+                                </div>
+                                <div className="kpi-card">
+                                    <h3 className="kpi-title">Ср. время ремонта</h3>
+                                    <p className="kpi-value">{reqData.averageRepairTimeHours} ч.</p>
+                                </div>
+                            </div>
+
+                            <div className="charts-grid">
+                                <div className="chart-card" style={{ gridColumn: 'span 2' }}>
+                                    <h3 className="card-title">Динамика поступления заявок по дням</h3>
+                                    <div style={{height: '300px'}}><Line data={getDynamicsChart()} options={{maintainAspectRatio: false}}/></div>
+                                </div>
+                                <div className="chart-card">
+                                    <h3 className="card-title">Распределение по статусам</h3>
+                                    <div style={{height: '300px', display: 'flex', justifyContent: 'center'}}><Doughnut data={getStatusChart()} options={{maintainAspectRatio: false}}/></div>
+                                </div>
+                                <div className="chart-card">
+                                    <h3 className="card-title">Типы обращений</h3>
+                                    <div style={{height: '300px', display: 'flex', justifyContent: 'center'}}><Pie data={getTypeChart()} options={{maintainAspectRatio: false}}/></div>
+                                </div>
+                                <div className="chart-card" style={{ gridColumn: 'span 2' }}>
+                                    <h3 className="card-title">Заявки по типам устройств</h3>
+                                    <div style={{height: '300px'}}><Bar data={getDeviceTypeChart()} options={defaultBarOptions}/></div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* --- 2. КЛИЕНТЫ --- */}
+                    {!isLoading && activeTab === 'clients' && clientsData && (
+                        <div>
+                            <div className="kpi-grid">
+                                <div className="kpi-card">
+                                    <h3 className="kpi-title">Новых клиентов за период</h3>
+                                    <p className="kpi-value" style={{color: '#2563eb'}}>{clientsData.newClientsCount}</p>
+                                </div>
+                                <div className="kpi-card">
+                                    <h3 className="kpi-title">Обращений от постоянных (Retention)</h3>
+                                    <p className="kpi-value" style={{color: '#8b5cf6'}}>{clientsData.returningClientRequestsCount}</p>
+                                </div>
+                                <div className="kpi-card">
+                                    <h3 className="kpi-title">Средняя оценка сервиса</h3>
+                                    <p className="kpi-value" style={{color: '#f59e0b'}}>★ {clientsData.averageRating}</p>
+                                </div>
+                            </div>
+                            <div className="charts-grid">
+                                <div className="chart-card">
+                                    <h3 className="card-title">Распределение оценок из отзывов</h3>
+                                    <div style={{height: '300px'}}><Bar data={getRatingDistributionChart()} options={defaultBarOptions}/></div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* --- 3. МАСТЕРА --- */}
+                    {!isLoading && activeTab === 'masters' && mastersData && (
+                        <div>
+                            <div className="kpi-grid">
+                                <div className="kpi-card">
+                                    <h3 className="kpi-title">Задействовано мастеров</h3>
+                                    <p className="kpi-value">{mastersData.activeMastersCount}</p>
+                                </div>
+                                <div className="kpi-card">
+                                    <h3 className="kpi-title">Топ-мастер (Больше всего закрыл)</h3>
+                                    <p className="kpi-value" style={{fontSize: '20px', paddingTop: '10px'}}>{mastersData.topMasterName}</p>
+                                </div>
+                                <div className="kpi-card">
+                                    <h3 className="kpi-title">Среднее время диагностики</h3>
+                                    <p className="kpi-value">{mastersData.averageDiagnosticTimeHours} ч.</p>
                                 </div>
                             </div>
 
                             <div className="charts-grid">
                                 <div className="chart-card">
-                                    <h3 className="card-title">Топ-5 популярных услуг</h3>
+                                    <h3 className="card-title">Сгенерированная выручка по мастерам</h3>
                                     <div style={{height: '300px'}}>
-                                        <Bar
-                                            data={getTopServicesChart()}
-                                            options={topServicesChartOptions}
-                                        />
+                                        <Bar data={getRevenueByMasterChart()} options={{...defaultBarOptions, indexAxis: 'y'}}/>
                                     </div>
                                 </div>
                                 <div className="chart-card">
-                                    <h3 className="card-title">Выручка по типам устройств</h3>
-                                    <div style={{height: '300px', display: 'flex', justifyContent: 'center'}}>
-                                        <Pie
-                                            data={getRevenueByDeviceChart()}
-                                            options={{maintainAspectRatio: false}}
-                                        />
+                                    <h3 className="card-title">Процент отказов от ремонта (%)</h3>
+                                    <div style={{height: '300px'}}>
+                                        <Bar data={getRejectionRateChart()} options={defaultBarOptions}/>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* 3. СПЕЦИАЛИСТЫ */}
-                    {!isLoading && activeTab === 'specialists' && specData && (
-                        <div>
-                            <div className="table-card">
-                                <h3 className="card-title">Эффективность персонала</h3>
-                                <table className="rating-table">
-                                    <thead>
-                                    <tr>
-                                        <th>ФИО Специалиста</th>
-                                        <th>Закрыто (за период)</th>
-                                        <th>В работе (сейчас)</th>
-                                        <th>Ср. время (ч)</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {specData.performance.map((spec, idx) => (
-                                        <tr key={idx}>
-                                            <td style={{fontWeight: 600}}>{spec.name}</td>
-                                            <td>{spec.closedCount}</td>
-                                            <td>{spec.inProgressCount}</td>
-                                            <td>{spec.avgRepairTime}</td>
-                                        </tr>
-                                    ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* 4. КЛИЕНТЫ */}
-                    {!isLoading && activeTab === 'clients' && clientsData && (
-                        <div className="kpi-grid" style={{gridTemplateColumns: 'repeat(2, 1fr)'}}>
-                            <div className="kpi-card">
-                                <h3 className="kpi-title">Всего клиентов в базе</h3>
-                                <p className="kpi-value">{clientsData.totalClients}</p>
-                                <div style={{color: '#666', marginTop: '10px', fontSize: '0.9rem'}}>
-                                    Общее количество зарегистрированных
-                                </div>
-                            </div>
-                            <div className="kpi-card">
-                                <h3 className="kpi-title">Повторные обращения (Retention)</h3>
-                                <p className="kpi-value" style={{color: '#6366f1'}}>
-                                    {clientsData.returningClientsCount}
-                                </p>
-                                <div style={{color: '#666', marginTop: '10px', fontSize: '0.9rem'}}>
-                                    Клиенты, создавшие более 1 заявки
                                 </div>
                             </div>
                         </div>

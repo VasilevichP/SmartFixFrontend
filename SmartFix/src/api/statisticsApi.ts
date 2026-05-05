@@ -1,77 +1,73 @@
 import api from '../api/axios';
-export interface GeneralStatsDto {
-    newRequestsCount: number;
-    closedRequestsCount: number;
-    averageRating: number;
-    avgRepairTimeHours: number;
-    requestsDynamics: { date: string; value: number }[];
-    statusDistribution: { label: string; value: number }[];
-}
-
-export interface ServicesStatsDto {
+export interface RequestsStatsDto {
+    totalRequests: number;
+    closedRequests: number;
+    cancelledRequests: number;
     totalRevenue: number;
-    revenueByDeviceType: { label: string; value: number }[];
-    topServices: { label: string; value: number }[];
-}
-
-export interface SpecialistsStatsDto {
-    performance: {
-        name: string;
-        closedCount: number;
-        inProgressCount: number;
-        avgRepairTime: number
-    }[];
+    averageCheck: number;
+    averageRepairTimeHours: number;
+    requestsByDay: Record<string, number>;
+    requestsByStatus: Record<string, number>;
+    requestsByType: Record<string, number>;
+    requestsByDeviceType: Record<string, number>;
 }
 
 export interface ClientsStatsDto {
-    totalClients: number;
-    returningClientsCount: number;
+    newClientsCount: number;
+    returningClientRequestsCount: number;
+    averageRating: number;
+    ratingDistribution: Record<string, number>;
 }
 
+export interface MastersStatsDto {
+    activeMastersCount: number;
+    topMasterName: string;
+    averageDiagnosticTimeHours: number;
+    revenueByMaster: Record<string, number>;
+    rejectionRateByMaster: Record<string, number>;
+}
+
+// --- МЕТОДЫ API ---
+
 export const statisticsApi = {
-    // Добавляем аргументы from и to
-    async getGeneralStatistics(token: string, period: string, from?: string, to?: string) {
-        const response = await api.get('/Statistics/general', {
-            params: {
-                period,
-                from,
-                to
-            },
-            headers: {Authorization: `Bearer ${token}`}
+    async getRequestsStats(token: string, period: string, from?: string, to?: string): Promise<RequestsStatsDto> {
+        const response = await api.get('/Statistics/requests', {
+            params: { period, from, to },
+            headers: { Authorization: `Bearer ${token}` }
         });
         return response.data;
     },
-    async getServicesStatistics(token: string, period: string, from?: string, to?: string) {
-        const response = await api.get('/Statistics/services', {
-            params: {
-                period,
-                from,
-                to
-            },
-            headers: {Authorization: `Bearer ${token}`}
-        });
-        return response.data;
-    },
-    async getClientsStatistics(token: string, period: string, from?: string, to?: string) {
+
+    async getClientsStats(token: string, period: string, from?: string, to?: string): Promise<ClientsStatsDto> {
         const response = await api.get('/Statistics/clients', {
-            params: {
-                period,
-                from,
-                to
-            },
-            headers: {Authorization: `Bearer ${token}`}
+            params: { period, from, to },
+            headers: { Authorization: `Bearer ${token}` }
         });
         return response.data;
     },
-    async getSpecialistsStatistics(token: string, period: string, from?: string, to?: string) {
-        const response = await api.get('/Statistics/specialists', {
-            params: {
-                period,
-                from,
-                to
-            },
-            headers: {Authorization: `Bearer ${token}`}
+
+    async getMastersStats(token: string, period: string, from?: string, to?: string): Promise<MastersStatsDto> {
+        const response = await api.get('/Statistics/masters', {
+            params: { period, from, to },
+            headers: { Authorization: `Bearer ${token}` }
         });
         return response.data;
+    },
+
+    async downloadReportPdf(token: string, period: string, from?: string, to?: string): Promise<void> {
+        const response = await api.get('/Statistics/report', {
+            params: { period, from, to },
+            headers: { Authorization: `Bearer ${token}` },
+            responseType: 'blob'
+        });
+
+        const file = new Blob([response.data], { type: 'application/pdf' });
+        const fileUrl = URL.createObjectURL(file);
+
+        window.open(fileUrl, '_blank');
+
+        setTimeout(() => {
+            URL.revokeObjectURL(fileUrl);
+        }, 1000);
     }
 };
